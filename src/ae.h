@@ -68,7 +68,7 @@ typedef void aeEventFinalizerProc(struct aeEventLoop *eventLoop, void *clientDat
 typedef void aeBeforeSleepProc(struct aeEventLoop *eventLoop);
 
 /* File event structure */
-typedef struct aeFileEvent {
+typedef struct aeFileEvent {//定义文件事件结构体 文件事件主要是网络I/O
     int mask; /* one of AE_(READABLE|WRITABLE|BARRIER) */
     aeFileProc *rfileProc;
     aeFileProc *wfileProc;
@@ -76,33 +76,33 @@ typedef struct aeFileEvent {
 } aeFileEvent;
 
 /* Time event structure */
-typedef struct aeTimeEvent {
-    long long id; /* time event identifier. */
-    long when_sec; /* seconds */
+typedef struct aeTimeEvent {//定义时间事件结构体，时间事件主要是指后台处理发生的事件
+    long long id; /* time event identifier. */ //ID编号
+    long when_sec; /* seconds */ //事件到达时间
     long when_ms; /* milliseconds */
     aeTimeProc *timeProc;
     aeEventFinalizerProc *finalizerProc;
     void *clientData;
-    struct aeTimeEvent *prev;
+    struct aeTimeEvent *prev; //时间事件基于双向链表链接
     struct aeTimeEvent *next;
 } aeTimeEvent;
 
 /* A fired event */
 typedef struct aeFiredEvent {
-    int fd;
-    int mask;
+    int fd;//已出现的事件的文件号对应的事件描述在aeEventLoop.events[]中的下标
+    int mask;//文件事件类型 AE_WRITABLE||AE_READABLE
 } aeFiredEvent;
 
 /* State of an event based program */
-typedef struct aeEventLoop {
-    int maxfd;   /* highest file descriptor currently registered */
-    int setsize; /* max number of file descriptors tracked */
+typedef struct aeEventLoop {//事件处理器
+    int maxfd;   /* highest file descriptor currently registered */ //当前监听的最大文件编号
+    int setsize; /* max number of file descriptors tracked *///跟踪的文件描述符的最大数量，数组的最大容量
     long long timeEventNextId;
     time_t lastTime;     /* Used to detect system clock skew */
-    aeFileEvent *events; /* Registered events */
-    aeFiredEvent *fired; /* Fired events */
-    aeTimeEvent *timeEventHead;
-    int stop;
+    aeFileEvent *events; /* Registered events *///注册的文件事件，基于数组实现
+    aeFiredEvent *fired; /* Fired events *///待处理的事件编号和类型
+    aeTimeEvent *timeEventHead;//注册的时间事件，基于链表实现
+    int stop;//是否停止处理
     void *apidata; /* This is used for polling API specific data */
     aeBeforeSleepProc *beforesleep;
     aeBeforeSleepProc *aftersleep;
