@@ -48,26 +48,38 @@
 #ifdef _AIX
 #undef ip_len
 #endif
-
+//TCP的默认连接方式
 int anetTcpConnect(char *err, const char *addr, int port);
+//TCP的非阻塞连接
 int anetTcpNonBlockConnect(char *err, const char *addr, int port);
 int anetTcpNonBlockBindConnect(char *err, const char *addr, int port, const char *source_addr);
 int anetTcpNonBlockBestEffortBindConnect(char *err, const char *addr, int port, const char *source_addr);
+//基于unix的tcp连接
 int anetUnixConnect(char *err, const char *path);
+//基于unix的tcp非阻塞连接
 int anetUnixNonBlockConnect(char *err, const char *path);
+//读取文件到buffer中
 int anetRead(int fd, char *buf, int count);
+//解析所有东西
 int anetResolve(char *err, char *host, char *ipbuf, size_t ipbuf_len);
+//解析IP地址
 int anetResolveIP(char *err, char *host, char *ipbuf, size_t ipbuf_len);
 int anetTcpServer(char *err, int port, char *bindaddr, int backlog);
 int anetTcp6Server(char *err, int port, char *bindaddr, int backlog);
 int anetUnixServer(char *err, char *path, mode_t perm, int backlog);
 int anetTcpAccept(char *err, int serversock, char *ip, size_t ip_len, int *port);
 int anetUnixAccept(char *err, int serversock);
+//将buffer中的数据写入到指定文件
 int anetWrite(int fd, char *buf, int count);
+//设置文件非阻塞
 int anetNonBlock(char *err, int fd);
+//设置文件阻塞
 int anetBlock(char *err, int fd);
+//启动tcp没有延迟
 int anetEnableTcpNoDelay(char *err, int fd);
+//关闭tcp延迟
 int anetDisableTcpNoDelay(char *err, int fd);
+//设置tcp保持活跃连接状态
 int anetTcpKeepAlive(char *err, int fd);
 int anetSendTimeout(char *err, int fd, long long ms);
 int anetRecvTimeout(char *err, int fd, long long ms);

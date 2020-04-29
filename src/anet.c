@@ -358,12 +358,12 @@ end:
         return s;
     }
 }
-
+//建立阻塞式TCP连接
 int anetTcpConnect(char *err, const char *addr, int port)
 {
     return anetTcpGenericConnect(err,addr,port,NULL,ANET_CONNECT_NONE);
 }
-
+//建立非阻塞式TCP连接
 int anetTcpNonBlockConnect(char *err, const char *addr, int port)
 {
     return anetTcpGenericConnect(err,addr,port,NULL,ANET_CONNECT_NONBLOCK);

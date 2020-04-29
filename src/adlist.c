@@ -201,6 +201,7 @@ void listReleaseIterator(listIter *iter) {
     zfree(iter);
 }
 
+//创建一个迭代器，从尾部开始迭代
 /* Create an iterator in the list private iterator structure */
 void listRewind(list *list, listIter *li) {
     li->next = list->head;
