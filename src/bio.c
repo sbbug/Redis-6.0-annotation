@@ -61,50 +61,65 @@
 #include "server.h"
 #include "bio.h"
 
-static pthread_t bio_threads[BIO_NUM_OPS];
-static pthread_mutex_t bio_mutex[BIO_NUM_OPS];
-static pthread_cond_t bio_newjob_cond[BIO_NUM_OPS];
+static pthread_t bio_threads[BIO_NUM_OPS];//定义线程数组
+static pthread_mutex_t bio_mutex[BIO_NUM_OPS];//定义每个线程对应的锁对象
+static pthread_cond_t bio_newjob_cond[BIO_NUM_OPS];//条件变量
 static pthread_cond_t bio_step_cond[BIO_NUM_OPS];
-static list *bio_jobs[BIO_NUM_OPS];
+static list *bio_jobs[BIO_NUM_OPS]; //定义list* 类型的数组，三种类型的作业分别对应的队列
 /* The following array is used to hold the number of pending jobs for every
  * OP type. This allows us to export the bioPendingJobsOfType() API that is
  * useful when the main thread wants to perform some operation that may involve
  * objects shared with the background thread. The main thread will just wait
  * that there are no longer jobs of this type to be executed before performing
  * the sensible operation. This data is also useful for reporting. */
-static unsigned long long bio_pending[BIO_NUM_OPS];
+static unsigned long long bio_pending[BIO_NUM_OPS];//定义挂起的任务数量
 
 /* This structure represents a background Job. It is only used locally to this
  * file as the API does not expose the internals at all. */
-struct bio_job {
-    time_t time; /* Time at which the job was created. */
+struct bio_job {//定义后台作业结构体
+    time_t time; /* 作业创建时间 */
     /* Job specific arguments pointers. If we need to pass more than three
      * arguments we can just pass a pointer to a structure or alike. */
     void *arg1, *arg2, *arg3;
 };
 
-void *bioProcessBackgroundJobs(void *arg);
-void lazyfreeFreeObjectFromBioThread(robj *o);
-void lazyfreeFreeDatabaseFromBioThread(dict *ht1, dict *ht2);
-void lazyfreeFreeSlotsMapFromBioThread(zskiplist *sl);
+void *bioProcessBackgroundJobs(void *arg);//处理后台作业
+void lazyfreeFreeObjectFromBioThread(robj *o);//对象释放
+void lazyfreeFreeDatabaseFromBioThread(dict *ht1, dict *ht2);//数据库释放
+void lazyfreeFreeSlotsMapFromBioThread(zskiplist *sl);//列表释放
 
 /* Make sure we have enough stack to perform all the things we do in the
  * main thread. */
-#define REDIS_THREAD_STACK_SIZE (1024*1024*4)
-
+#define REDIS_THREAD_STACK_SIZE (1024*1024*4)//Redis单个线程栈的大小
+//初始化后台服务，启动进程
 /* Initialize the background system, spawning the thread. */
 void bioInit(void) {
-    pthread_attr_t attr;
-    pthread_t thread;
-    size_t stacksize;
+    pthread_attr_t attr;//定义线程属性对象
+    /*
+    typedef struct
+                {
+                       int                           detachstate;     线程的分离状态
+                       int                          schedpolicy;   线程调度策略
+                       struct sched_param      schedparam;   线程的调度参数
+                       int                          inheritsched;    线程的继承性
+                       int                          scope;          线程的作用域
+                       size_t                      guardsize; 线程栈末尾的警戒缓冲区大小
+                       int                          stackaddr_set;
+                       void *                     stackaddr;      线程栈的位置
+                       size_t                      stacksize;       线程栈的大小
+                }pthread_attr_t;
+
+    */
+    pthread_t thread;//定义线程
+    size_t stacksize;//栈大小
     int j;
 
     /* Initialization of state vars and objects */
     for (j = 0; j < BIO_NUM_OPS; j++) {
-        pthread_mutex_init(&bio_mutex[j],NULL);
+        pthread_mutex_init(&bio_mutex[j],NULL);//初始化各种参数
         pthread_cond_init(&bio_newjob_cond[j],NULL);
         pthread_cond_init(&bio_step_cond[j],NULL);
-        bio_jobs[j] = listCreate();
+        bio_jobs[j] = listCreate();//创建队列
         bio_pending[j] = 0;
     }
 
@@ -113,7 +128,7 @@ void bioInit(void) {
     pthread_attr_getstacksize(&attr,&stacksize);
     if (!stacksize) stacksize = 1; /* The world is full of Solaris Fixes */
     while (stacksize < REDIS_THREAD_STACK_SIZE) stacksize *= 2;
-    pthread_attr_setstacksize(&attr, stacksize);
+    pthread_attr_setstacksize(&attr, stacksize);//设置线程栈的属性大小
 
     /* Ready to spawn our threads. We use the single argument the thread
      * function accepts in order to pass the job ID the thread is
@@ -129,13 +144,13 @@ void bioInit(void) {
 }
 
 void bioCreateBackgroundJob(int type, void *arg1, void *arg2, void *arg3) {
-    struct bio_job *job = zmalloc(sizeof(*job));
+    struct bio_job *job = zmalloc(sizeof(*job));//分配内存
 
-    job->time = time(NULL);
+    job->time = time(NULL);//获取当前时间
     job->arg1 = arg1;
     job->arg2 = arg2;
     job->arg3 = arg3;
-    pthread_mutex_lock(&bio_mutex[type]);
+    pthread_mutex_lock(&bio_mutex[type]);//
     listAddNodeTail(bio_jobs[type],job);
     bio_pending[type]++;
     pthread_cond_signal(&bio_newjob_cond[type]);
@@ -148,7 +163,7 @@ void *bioProcessBackgroundJobs(void *arg) {
     sigset_t sigset;
 
     /* Check that the type is within the right interval. */
-    if (type >= BIO_NUM_OPS) {
+    if (type >= BIO_NUM_OPS) {//此类型任务不存在
         serverLog(LL_WARNING,
             "Warning: bio thread started with wrong type %lu",type);
         return NULL;
@@ -171,7 +186,7 @@ void *bioProcessBackgroundJobs(void *arg) {
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
-    pthread_mutex_lock(&bio_mutex[type]);
+    pthread_mutex_lock(&bio_mutex[type]);//尝试获取互斥锁
     /* Block SIGALRM so we are sure that only the main thread will
      * receive the watchdog signal. */
     sigemptyset(&sigset);
@@ -226,7 +241,7 @@ void *bioProcessBackgroundJobs(void *arg) {
         pthread_cond_broadcast(&bio_step_cond[type]);
     }
 }
-
+//返回已经指定类型的被挂起的作业的数量
 /* Return the number of pending jobs of the specified type. */
 unsigned long long bioPendingJobsOfType(int type) {
     unsigned long long val;

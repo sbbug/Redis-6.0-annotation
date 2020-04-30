@@ -26,22 +26,23 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
+//BIO即background I/O service，后台I/O服务，是redis的aof持久化后台服务。
 #ifndef __BIO_H
 #define __BIO_H
 
 /* Exported API */
-void bioInit(void);
+void bioInit(void);//初始化
 void bioCreateBackgroundJob(int type, void *arg1, void *arg2, void *arg3);
 unsigned long long bioPendingJobsOfType(int type);
 unsigned long long bioWaitStepOfType(int type);
 time_t bioOlderJobOfType(int type);
 void bioKillThreads(void);
 
+//后台有三种类型作业
 /* Background job opcodes */
-#define BIO_CLOSE_FILE    0 /* Deferred close(2) syscall. */
-#define BIO_AOF_FSYNC     1 /* Deferred AOF fsync. */
-#define BIO_LAZY_FREE     2 /* Deferred objects freeing. */
+#define BIO_CLOSE_FILE    0 /* Deferred close(2) syscall. *///关闭文件
+#define BIO_AOF_FSYNC     1 /* Deferred AOF fsync. *///AOF缓存异步存储
+#define BIO_LAZY_FREE     2 /* Deferred objects freeing. *///懒汉式释放内存
 #define BIO_NUM_OPS       3
 
 #endif
