@@ -30,6 +30,8 @@
 #include "server.h"
 #include "connhelpers.h"
 
+//connections模块提供了对网络连接的一个抽象管理
+
 /* The connections module provides a lean abstraction of network connections
  * to avoid direct socket and async event management across the Redis code base.
  *
@@ -74,6 +76,7 @@ ConnectionType CT_Socket;
  * be embedded in different structs, not just client.
  */
 
+//创建一个基于socket的连接
 connection *connCreateSocket() {
     connection *conn = zcalloc(sizeof(connection));
     conn->type = &CT_Socket;
@@ -89,7 +92,7 @@ connection *connCreateSocket() {
  * invoked the connection-level accept handler.
  */
 connection *connCreateAcceptedSocket(int fd) {
-    connection *conn = connCreateSocket();
+    connection *conn = connCreateSocket();//创建一个connection
     conn->fd = fd;
     conn->state = CONN_STATE_ACCEPTING;
     return conn;
@@ -97,17 +100,18 @@ connection *connCreateAcceptedSocket(int fd) {
 
 static int connSocketConnect(connection *conn, const char *addr, int port, const char *src_addr,
         ConnectionCallbackFunc connect_handler) {
-    int fd = anetTcpNonBlockBestEffortBindConnect(NULL,addr,port,src_addr);
-    if (fd == -1) {
+    int fd = anetTcpNonBlockBestEffortBindConnect(NULL,addr,port,src_addr);//建立非阻塞式最大努力尝试绑定TCP连接
+    if (fd == -1) {//创建失败
         conn->state = CONN_STATE_ERROR;
         conn->last_errno = errno;
         return C_ERR;
     }
-
+    //将connection和真实的socket绑定
     conn->fd = fd;
     conn->state = CONN_STATE_CONNECTING;
 
     conn->conn_handler = connect_handler;
+    //创建文件事件，并加入到server中的事件处理器中
     aeCreateFileEvent(server.el, conn->fd, AE_WRITABLE,
             conn->type->ae_handler, conn);
 
@@ -126,12 +130,12 @@ int connHasReadHandler(connection *conn) {
 
 /* Associate a private data pointer with the connection */
 void connSetPrivateData(connection *conn, void *data) {
-    conn->private_data = data;
+    conn->private_data = data; //私有数据指针关联
 }
 
 /* Get the associated private data pointer */
 void *connGetPrivateData(connection *conn) {
-    return conn->private_data;
+    return conn->private_data;//获取私有数据
 }
 
 /* ------ Pure socket connections ------- */
@@ -141,10 +145,11 @@ void *connGetPrivateData(connection *conn) {
  */
 
 /* Close the connection and free resources. */
+//关闭connection中关联socket连接
 static void connSocketClose(connection *conn) {
     if (conn->fd != -1) {
-        aeDeleteFileEvent(server.el,conn->fd,AE_READABLE);
-        aeDeleteFileEvent(server.el,conn->fd,AE_WRITABLE);
+        aeDeleteFileEvent(server.el,conn->fd,AE_READABLE);//删除对应的文件事件
+        aeDeleteFileEvent(server.el,conn->fd,AE_WRITABLE);//删除对应的文件事件
         close(conn->fd);
         conn->fd = -1;
     }
@@ -160,16 +165,17 @@ static void connSocketClose(connection *conn) {
     zfree(conn);
 }
 
+//socket写数据
 static int connSocketWrite(connection *conn, const void *data, size_t data_len) {
     int ret = write(conn->fd, data, data_len);
-    if (ret < 0 && errno != EAGAIN) {
+    if (ret < 0 && errno != EAGAIN) {//写失败
         conn->last_errno = errno;
         conn->state = CONN_STATE_ERROR;
     }
 
     return ret;
 }
-
+//socket读数据
 static int connSocketRead(connection *conn, void *buf, size_t buf_len) {
     int ret = read(conn->fd, buf, buf_len);
     if (!ret) {
@@ -181,7 +187,7 @@ static int connSocketRead(connection *conn, void *buf, size_t buf_len) {
 
     return ret;
 }
-
+//socket接收连接
 static int connSocketAccept(connection *conn, ConnectionCallbackFunc accept_handler) {
     int ret = C_OK;
 
@@ -325,7 +331,7 @@ static ssize_t connSocketSyncReadLine(connection *conn, char *ptr, ssize_t size,
     return syncReadLine(conn->fd, ptr, size, timeout);
 }
 
-
+//对应ConnectionType CT_Socket ，对其进行赋值初始化
 ConnectionType CT_Socket = {
     .ae_handler = connSocketEventHandler,
     .close = connSocketClose,

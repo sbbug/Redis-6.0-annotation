@@ -27,16 +27,19 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+/*
+connection模块是对anet模块的进一步封装
 
+*/
 #ifndef __REDIS_CONNECTION_H
 #define __REDIS_CONNECTION_H
 
 #define CONN_INFO_LEN   32
 
-struct aeEventLoop;
-typedef struct connection connection;
+struct aeEventLoop; //事件处理器
+typedef struct connection connection;//结构体声明
 
-typedef enum {
+typedef enum {//枚举类型
     CONN_STATE_NONE = 0,
     CONN_STATE_CONNECTING,
     CONN_STATE_ACCEPTING,
@@ -48,6 +51,8 @@ typedef enum {
 #define CONN_FLAG_CLOSE_SCHEDULED   (1<<0)      /* Closed scheduled by a handler */
 #define CONN_FLAG_WRITE_BARRIER     (1<<1)      /* Write barrier requested */
 
+//声明一个ConnectionCallbackFunc函数指针类型
+//
 typedef void (*ConnectionCallbackFunc)(struct connection *conn);
 
 typedef struct ConnectionType {
@@ -67,16 +72,17 @@ typedef struct ConnectionType {
 } ConnectionType;
 
 struct connection {
-    ConnectionType *type;
-    ConnectionState state;
+    ConnectionType *type;//连接类型
+    ConnectionState state;//连接状态
     short int flags;
     short int refs;
     int last_errno;
     void *private_data;
-    ConnectionCallbackFunc conn_handler;
+    ConnectionCallbackFunc conn_handler;//定义基于函数类型的变量，可以接收的函数类型格式为
+    //void (*ConnectionCallbackFunc)(struct connection *conn);
     ConnectionCallbackFunc write_handler;
     ConnectionCallbackFunc read_handler;
-    int fd;
+    int fd;//文件描述符
 };
 
 /* The connection module does not deal with listening and accepting sockets,
