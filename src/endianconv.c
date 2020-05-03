@@ -44,8 +44,7 @@
 
 #include <stdint.h>
 
-/* Toggle the 16 bit unsigned integer pointed by *p from little endian to
- * big endian */
+/*将p指向的16位无符号数字从小端转换为大端存储 */
 void memrev16(void *p) {
     unsigned char *x = p, t;
 
@@ -54,8 +53,7 @@ void memrev16(void *p) {
     x[1] = t;
 }
 
-/* Toggle the 32 bit unsigned integer pointed by *p from little endian to
- * big endian */
+/* 将32位无符号数字从小端转换到大端存储*/
 void memrev32(void *p) {
     unsigned char *x = p, t;
 
@@ -67,8 +65,7 @@ void memrev32(void *p) {
     x[2] = t;
 }
 
-/* Toggle the 64 bit unsigned integer pointed by *p from little endian to
- * big endian */
+/* 将64位无符号数字从小端存储转换到大端存储 */
 void memrev64(void *p) {
     unsigned char *x = p, t;
 
