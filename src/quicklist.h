@@ -46,7 +46,7 @@
 typedef struct quicklistNode {
     struct quicklistNode *prev;
     struct quicklistNode *next;
-    unsigned char *zl;
+    unsigned char *zl;//指向ziplist
     unsigned int sz;             /* ziplist size in bytes */
     unsigned int count : 16;     /* count of items in ziplist */
     unsigned int encoding : 2;   /* RAW==1 or LZF==2 */
@@ -103,8 +103,8 @@ typedef struct quicklistBookmark {
  * 'bookmakrs are an optional feature that is used by realloc this struct,
  *      so that they don't consume memory when not used. */
 typedef struct quicklist {
-    quicklistNode *head;
-    quicklistNode *tail;
+    quicklistNode *head;   //头结点
+    quicklistNode *tail;   //尾结点
     unsigned long count;        /* total count of all entries in all ziplists */
     unsigned long len;          /* number of quicklistNodes */
     int fill : QL_FILL_BITS;              /* fill factor for individual nodes */
@@ -113,7 +113,7 @@ typedef struct quicklist {
     quicklistBookmark bookmarks[];
 } quicklist;
 
-typedef struct quicklistIter {
+typedef struct quicklistIter {//quicklist迭代器
     const quicklist *quicklist;
     quicklistNode *current;
     unsigned char *zi;

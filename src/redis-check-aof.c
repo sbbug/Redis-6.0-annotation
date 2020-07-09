@@ -31,6 +31,7 @@
 #include "server.h"
 #include <sys/stat.h>
 
+//错误显示
 #define ERROR(...) { \
     char __buf[1024]; \
     snprintf(__buf, sizeof(__buf), __VA_ARGS__); \
@@ -40,7 +41,7 @@
 static char error[1044];
 static off_t epos;
 
-int consumeNewline(char *buf) {
+int consumeNewline(char *buf) { /* 消除buf前面的换行符，即比较buf字符串中的前2个字符 */
     if (strncmp(buf,"\r\n",2) != 0) {
         ERROR("Expected \\r\\n, got: %02x%02x",buf[0],buf[1]);
         return 0;
@@ -48,7 +49,7 @@ int consumeNewline(char *buf) {
     return 1;
 }
 
-int readLong(FILE *fp, char prefix, long *target) {
+int readLong(FILE *fp, char prefix, long *target) {/* 从文件中读取long类型值 */
     char buf[128], *eptr;
     epos = ftello(fp);
     if (fgets(buf,sizeof(buf),fp) == NULL) {
@@ -62,7 +63,7 @@ int readLong(FILE *fp, char prefix, long *target) {
     return consumeNewline(eptr);
 }
 
-int readBytes(FILE *fp, char *target, long length) {
+int readBytes(FILE *fp, char *target, long length) {/* 从文件中读取字节 */
     long real;
     epos = ftello(fp);
     real = fread(target,1,length,fp);
@@ -73,7 +74,7 @@ int readBytes(FILE *fp, char *target, long length) {
     return 1;
 }
 
-int readString(FILE *fp, char** target) {
+int readString(FILE *fp, char** target) {/* 文件中读取字符串 */
     long len;
     *target = NULL;
     if (!readLong(fp,'$',&len)) {
@@ -93,11 +94,11 @@ int readString(FILE *fp, char** target) {
     return 1;
 }
 
-int readArgc(FILE *fp, long *target) {
+int readArgc(FILE *fp, long *target) {/* 文件中读取参数,首字符以“*”开头 */
     return readLong(fp,'*',target);
 }
 
-off_t process(FILE *fp) {
+off_t process(FILE *fp) {//返回fp文件偏移量
     long argc;
     off_t pos = 0;
     int i, multi = 0;
@@ -140,11 +141,12 @@ off_t process(FILE *fp) {
     }
     return pos;
 }
-
+//Redis中aof文件审查
 int redis_check_aof_main(int argc, char **argv) {
     char *filename;
-    int fix = 0;
+    int fix = 0;//和文件修复有关
 
+    //提取aof文件名字
     if (argc < 2) {
         printf("Usage: %s [--fix] <file.aof>\n", argv[0]);
         exit(1);
@@ -162,7 +164,7 @@ int redis_check_aof_main(int argc, char **argv) {
         exit(1);
     }
 
-    FILE *fp = fopen(filename,"r+");
+    FILE *fp = fopen(filename,"r+");//打开aof文件
     if (fp == NULL) {
         printf("Cannot open file: %s\n", filename);
         exit(1);
@@ -175,7 +177,7 @@ int redis_check_aof_main(int argc, char **argv) {
     }
 
     off_t size = sb.st_size;
-    if (size == 0) {
+    if (size == 0) {//是否为空
         printf("Empty file: %s\n", filename);
         exit(1);
     }
@@ -187,7 +189,9 @@ int redis_check_aof_main(int argc, char **argv) {
         int has_preamble = fread(sig,sizeof(sig),1,fp) == 1 &&
                             memcmp(sig,"REDIS",sizeof(sig)) == 0;
         rewind(fp);
-        if (has_preamble) {
+
+
+        if (has_preamble) {//aof中出现了rdb格式的文件头
             printf("The AOF appears to start with an RDB preamble.\n"
                    "Checking the RDB preamble to start:\n");
             if (redis_check_rdb_main(argc,argv,fp) == C_ERR) {
@@ -199,8 +203,8 @@ int redis_check_aof_main(int argc, char **argv) {
         }
     }
 
-    off_t pos = process(fp);
-    off_t diff = size-pos;
+    off_t pos = process(fp);//获取文件流偏移量
+    off_t diff = size-pos;//
     printf("AOF analyzed: size=%lld, ok_up_to=%lld, diff=%lld\n",
         (long long) size, (long long) pos, (long long) diff);
     if (diff > 0) {

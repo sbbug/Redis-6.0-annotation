@@ -2697,7 +2697,7 @@ void initServer(void) {
 
     signal(SIGHUP, SIG_IGN);
     signal(SIGPIPE, SIG_IGN);
-    setupSignalHandlers();
+    setupSignalHandlers();//设置信号处理
 
     if (server.syslog_enabled) {
         openlog(server.syslog_ident, LOG_PID | LOG_NDELAY | LOG_NOWAIT,
@@ -2707,14 +2707,14 @@ void initServer(void) {
     /* Initialization after setting defaults from the config system. */
     server.aof_state = server.aof_enabled ? AOF_ON : AOF_OFF;
     server.hz = server.config_hz;
-    server.pid = getpid();
+    server.pid = getpid();//获取进程id
     server.current_client = NULL;
     server.fixed_time_expire = 0;
-    server.clients = listCreate();
+    server.clients = listCreate();//客户端队列
     server.clients_index = raxNew();
     server.clients_to_close = listCreate();
-    server.slaves = listCreate();
-    server.monitors = listCreate();
+    server.slaves = listCreate();//从服务器节点
+    server.monitors = listCreate();//创建监视器列表
     server.clients_pending_write = listCreate();
     server.clients_pending_read = listCreate();
     server.clients_timeout_table = raxNew();
@@ -2733,16 +2733,16 @@ void initServer(void) {
 
     createSharedObjects();
     adjustOpenFilesLimit();
-    server.el = aeCreateEventLoop(server.maxclients+CONFIG_FDSET_INCR);
+    server.el = aeCreateEventLoop(server.maxclients+CONFIG_FDSET_INCR);//创建事件处理器
     if (server.el == NULL) {
         serverLog(LL_WARNING,
             "Failed creating the event loop. Error message: '%s'",
             strerror(errno));
         exit(1);
     }
-    server.db = zmalloc(sizeof(redisDb)*server.dbnum);
+    server.db = zmalloc(sizeof(redisDb)*server.dbnum);//创建数据库db集合
 
-    /* Open the TCP listening socket for the user commands. */
+    /* 打开用户命令的TCP监听程序. */
     if (server.port != 0 &&
         listenToPort(server.port,server.ipfd,&server.ipfd_count) == C_ERR)
         exit(1);
@@ -2750,7 +2750,7 @@ void initServer(void) {
         listenToPort(server.tls_port,server.tlsfd,&server.tlsfd_count) == C_ERR)
         exit(1);
 
-    /* Open the listening Unix domain socket. */
+    /* 打开监听unix的socket. */
     if (server.unixsocket != NULL) {
         unlink(server.unixsocket); /* don't care if this fails */
         server.sofd = anetUnixServer(server.neterr,server.unixsocket,
@@ -2769,6 +2769,7 @@ void initServer(void) {
     }
 
     /* Create the Redis databases, and initialize other internal state. */
+    //对每个数据库状态初始化
     for (j = 0; j < server.dbnum; j++) {
         server.db[j].dict = dictCreate(&dbDictType,NULL);
         server.db[j].expires = dictCreate(&keyptrDictType,NULL);
@@ -2802,7 +2803,7 @@ void initServer(void) {
     server.child_info_pipe[1] = -1;
     server.child_info_data.magic = 0;
     aofRewriteBufferReset();
-    server.aof_buf = sdsempty();
+    server.aof_buf = sdsempty();//aof缓存区
     server.lastsave = time(NULL); /* At startup we consider the DB saved. */
     server.lastbgsave_try = 0;    /* At startup we never tried to BGSAVE. */
     server.rdb_save_time_last = -1;
@@ -2830,7 +2831,7 @@ void initServer(void) {
     /* Create the timer callback, this is our way to process many background
      * operations incrementally, like clients timeout, eviction of unaccessed
      * expired keys and so forth. */
-    if (aeCreateTimeEvent(server.el, 1, serverCron, NULL, NULL) == AE_ERR) {
+    if (aeCreateTimeEvent(server.el, 1, serverCron, NULL, NULL) == AE_ERR) {//添加一个时间事件
         serverPanic("Can't create event loop timers.");
         exit(1);
     }
@@ -2887,7 +2888,7 @@ void initServer(void) {
         server.maxmemory_policy = MAXMEMORY_NO_EVICTION;
     }
 
-    if (server.cluster_enabled) clusterInit();
+    if (server.cluster_enabled) clusterInit();//是否开启集群模式
     replicationScriptCacheInit();
     scriptingInit(1);
     slowlogInit();
@@ -2899,9 +2900,10 @@ void initServer(void) {
  * Specifically, creation of threads due to a race bug in ld.so, in which
  * Thread Local Storage initialization collides with dlopen call.
  * see: https://sourceware.org/bugzilla/show_bug.cgi?id=19329 */
+ //服务器一些初始化步骤需要后完成
 void InitServerLast() {
-    bioInit();
-    initThreadedIO();
+    bioInit();//初始化后台服务
+    initThreadedIO();//初始化线程I/O所需的数据结构
     set_jemalloc_bg_thread(server.jemalloc_bg_thread);
     server.initial_memory_usage = zmalloc_used_memory();
 }
@@ -4910,7 +4912,7 @@ int main(int argc, char **argv) {
     struct timeval tv;
     int j;
 
-#ifdef REDIS_TEST
+#ifdef REDIS_TEST//测试模块，用来测试
     if (argc == 3 && !strcasecmp(argv[1], "test")) {
         if (!strcasecmp(argv[2], "ziplist")) {
             return ziplistTest(argc, argv);
@@ -4950,7 +4952,7 @@ int main(int argc, char **argv) {
     getRandomBytes(hashseed,sizeof(hashseed));
     dictSetHashFunctionSeed(hashseed);
     server.sentinel_mode = checkForSentinelMode(argc,argv);
-    initServerConfig();
+    initServerConfig();//初始化服务器的一些属性信息
     ACLInit(); /* The ACL subsystem must be initialized ASAP because the
                   basic networking code and client creation depends on it. */
     moduleInitModulesSystem();
@@ -4974,6 +4976,7 @@ int main(int argc, char **argv) {
     /* Check if we need to start in redis-check-rdb/aof mode. We just execute
      * the program main. However the program is part of the Redis executable
      * so that we can easily execute an RDB check on loading errors. */
+     //aof文件与rdb文件是否需要初始化
     if (strstr(argv[0],"redis-check-rdb") != NULL)
         redis_check_rdb_main(argc,argv,NULL);
     else if (strstr(argv[0],"redis-check-aof") != NULL)
@@ -5064,13 +5067,14 @@ int main(int argc, char **argv) {
     int background = server.daemonize && !server.supervised;
     if (background) daemonize();
 
-    initServer();
-    if (background || server.pidfile) createPidFile();
-    redisSetProcTitle(argv[0]);
-    redisAsciiArt();
-    checkTcpBacklogSettings();
 
-    if (!server.sentinel_mode) {
+    initServer();//初始化服务器
+    if (background || server.pidfile) createPidFile();
+    redisSetProcTitle(argv[0]);//设置进程标题
+    redisAsciiArt();//输出redis的ASCII艺术字符
+    checkTcpBacklogSettings();//检查 tcp 的 backlog 配置.
+
+    if (!server.sentinel_mode) {//是否开启哨兵模式
         /* Things not needed when running in Sentinel mode. */
         serverLog(LL_WARNING,"Server initialized");
     #ifdef __linux__
@@ -5101,19 +5105,21 @@ int main(int argc, char **argv) {
             }
         }
     } else {
-        InitServerLast();
+        InitServerLast();//服务器后续初始化步骤
         sentinelIsRunning();
     }
 
+
     /* Warning the user about suspicious maxmemory setting. */
+    if (server.maxmemory > 0 && server.maxmemory < 1024*1024) {
     if (server.maxmemory > 0 && server.maxmemory < 1024*1024) {
         serverLog(LL_WARNING,"WARNING: You specified a maxmemory value that is less than 1MB (current value is %llu bytes). Are you sure this is what you really want?", server.maxmemory);
     }
 
     aeSetBeforeSleepProc(server.el,beforeSleep);
     aeSetAfterSleepProc(server.el,afterSleep);
-    aeMain(server.el);
-    aeDeleteEventLoop(server.el);
+    aeMain(server.el);//进去事件循环处理器
+    aeDeleteEventLoop(server.el);//释放事件处理器
     return 0;
 }
 

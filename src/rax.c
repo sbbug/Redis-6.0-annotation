@@ -119,7 +119,7 @@ static inline int raxStackPush(raxStack *ts, void *ptr) {
         }
         ts->maxitems *= 2;
     }
-    ts->stack[ts->items] = ptr;
+    ts->stack[ts->items] = ptr;//入栈
     ts->items++;
     return 1;
 }

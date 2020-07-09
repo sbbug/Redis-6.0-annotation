@@ -46,6 +46,7 @@
 
 /* Include the best multiplexing layer supported by this system.
  * The following should be ordered by performances, descending. */
+ //通过宏定义来兼容不同的操作系统
 #ifdef HAVE_EVPORT
 #include "ae_evport.c"
 #else
@@ -438,6 +439,7 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)//开始事件处理
         if (eventLoop->aftersleep != NULL && flags & AE_CALL_AFTER_SLEEP)
             eventLoop->aftersleep(eventLoop);
 
+        //开始处理文件事件
         for (j = 0; j < numevents; j++) {
             aeFileEvent *fe = &eventLoop->events[eventLoop->fired[j].fd];
             int mask = eventLoop->fired[j].mask;
@@ -455,7 +457,7 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)//开始事件处理
              * This is useful when, for instance, we want to do things
              * in the beforeSleep() hook, like fsynching a file to disk,
              * before replying to a client. */
-            int invert = fe->mask & AE_BARRIER;
+            int invert = fe->mask & AE_BARRIER;//是否事件阻塞
 
             /* Note the "fe->mask & mask & ..." code: maybe an already
              * processed event removed an element that fired and we still

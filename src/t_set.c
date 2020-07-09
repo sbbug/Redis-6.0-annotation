@@ -49,7 +49,7 @@ robj *setTypeCreate(sds value) {
  *
  * If the value was already member of the set, nothing is done and 0 is
  * returned, otherwise the new element is added and 1 is returned. */
-int setTypeAdd(robj *subject, sds value) {
+int setTypeAdd(robj *subject, sds value) {//向集合subject中添加value值
     long long llval;
     if (subject->encoding == OBJ_ENCODING_HT) {
         dict *ht = subject->ptr;

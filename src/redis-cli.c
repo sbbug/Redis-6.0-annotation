@@ -189,7 +189,7 @@ static void createClusterManagerCommand(char *cmdname, int argc, char **argv);
 
 
 static redisContext *context;
-static struct config {
+static struct config {//配置结构体
     char *hostip;
     int hostport;
     char *hostsocket;
@@ -7880,16 +7880,17 @@ static sds askPassword() {
 /*------------------------------------------------------------------------------
  * Program main()
  *--------------------------------------------------------------------------- */
-
+//客户端运行main函数入口
 int main(int argc, char **argv) {
     int firstarg;
 
+    //初始化基本信息
     config.hostip = sdsnew("127.0.0.1");
     config.hostport = 6379;
     config.hostsocket = NULL;
     config.repeat = 1;
     config.interval = 0;
-    config.dbnum = 0;
+    config.dbnum = 0;//数据库编号
     config.interactive = 0;
     config.shutdown = 0;
     config.monitor_mode = 0;

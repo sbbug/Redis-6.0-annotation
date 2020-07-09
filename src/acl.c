@@ -929,7 +929,7 @@ void ACLInitDefaultUser(void) {
 
 /* Initialization of the ACL subsystem. */
 void ACLInit(void) {
-    Users = raxNew();
+    Users = raxNew();//创建用户
     UsersToLoad = listCreate();
     ACLLog = listCreate();
     ACLInitDefaultUser();

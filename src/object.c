@@ -39,17 +39,17 @@
 /* ===================== Creation and parsing of objects ==================== */
 
 robj *createObject(int type, void *ptr) {
-    robj *o = zmalloc(sizeof(*o));
-    o->type = type;
+    robj *o = zmalloc(sizeof(*o));//定义robj对象
+    o->type = type;//数据类型，比如OBJ_STRING
     o->encoding = OBJ_ENCODING_RAW;
     o->ptr = ptr;
-    o->refcount = 1;
+    o->refcount = 1;//引用计数设置为1
 
     /* Set the LRU to the current lruclock (minutes resolution), or
      * alternatively the LFU counter. */
-    if (server.maxmemory_policy & MAXMEMORY_FLAG_LFU) {
+    if (server.maxmemory_policy & MAXMEMORY_FLAG_LFU) {//LFU策略
         o->lru = (LFUGetTimeInMinutes()<<8) | LFU_INIT_VAL;
-    } else {
+    } else {//LRU策略
         o->lru = LRU_CLOCK();
     }
     return o;
@@ -68,12 +68,13 @@ robj *createObject(int type, void *ptr) {
  */
 robj *makeObjectShared(robj *o) {
     serverAssert(o->refcount == 1);
-    o->refcount = OBJ_SHARED_REFCOUNT;
+    o->refcount = OBJ_SHARED_REFCOUNT;//INT_MAX
     return o;
 }
 
 /* Create a string object with encoding OBJ_ENCODING_RAW, that is a plain
  * string object where o->ptr points to a proper sds string. */
+ //创建一个字符串的对象
 robj *createRawStringObject(const char *ptr, size_t len) {
     return createObject(OBJ_STRING, sdsnewlen(ptr,len));
 }
@@ -83,11 +84,11 @@ robj *createRawStringObject(const char *ptr, size_t len) {
  * allocated in the same chunk as the object itself. */
 robj *createEmbeddedStringObject(const char *ptr, size_t len) {
     robj *o = zmalloc(sizeof(robj)+sizeof(struct sdshdr8)+len+1);
-    struct sdshdr8 *sh = (void*)(o+1);
+    struct sdshdr8 *sh = (void*)(o+1);//新建一个sdshdr8对象
 
     o->type = OBJ_STRING;
     o->encoding = OBJ_ENCODING_EMBSTR;
-    o->ptr = sh+1;
+    o->ptr = sh+1;//robj结构体里的ptr指针指向sh字符串数据区域
     o->refcount = 1;
     if (server.maxmemory_policy & MAXMEMORY_FLAG_LFU) {
         o->lru = (LFUGetTimeInMinutes()<<8) | LFU_INIT_VAL;
@@ -117,10 +118,10 @@ robj *createEmbeddedStringObject(const char *ptr, size_t len) {
  * we allocate as EMBSTR will still fit into the 64 byte arena of jemalloc. */
 #define OBJ_ENCODING_EMBSTR_SIZE_LIMIT 44
 robj *createStringObject(const char *ptr, size_t len) {
-    if (len <= OBJ_ENCODING_EMBSTR_SIZE_LIMIT)
+    if (len <= OBJ_ENCODING_EMBSTR_SIZE_LIMIT)//如果字符串长度小于44,采用EMBSTR编码
         return createEmbeddedStringObject(ptr,len);
     else
-        return createRawStringObject(ptr,len);
+        return createRawStringObject(ptr,len);//否则原始编码
 }
 
 /* Create a string object from a long long value. When possible returns a
@@ -130,6 +131,7 @@ robj *createStringObject(const char *ptr, size_t len) {
  * integer, because the object is going to be used as value in the Redis key
  * space (for instance when the INCR command is used), so we want LFU/LRU
  * values specific for each key. */
+ //根据long long 类型的值返回一个robj对象
 robj *createStringObjectFromLongLongWithOptions(long long value, int valueobj) {
     robj *o;
 
@@ -158,7 +160,7 @@ robj *createStringObjectFromLongLongWithOptions(long long value, int valueobj) {
 
 /* Wrapper for createStringObjectFromLongLongWithOptions() always demanding
  * to create a shared object if possible. */
-robj *createStringObjectFromLongLong(long long value) {
+robj *createStringObjectFromLongLong(long long value) {//装饰器模式，实现long long 到字符串对象转换
     return createStringObjectFromLongLongWithOptions(value,0);
 }
 
@@ -211,21 +213,22 @@ robj *dupStringObject(const robj *o) {
     }
 }
 
-robj *createQuicklistObject(void) {
+robj *createQuicklistObject(void) {//创建一个基于list的robj对象
     quicklist *l = quicklistCreate();
     robj *o = createObject(OBJ_LIST,l);
     o->encoding = OBJ_ENCODING_QUICKLIST;
     return o;
+
 }
 
-robj *createZiplistObject(void) {
+robj *createZiplistObject(void) {//创建一个基于ziplist的robj对象
     unsigned char *zl = ziplistNew();
     robj *o = createObject(OBJ_LIST,zl);
     o->encoding = OBJ_ENCODING_ZIPLIST;
     return o;
 }
 
-robj *createSetObject(void) {
+robj *createSetObject(void) {//创建一个集合对象
     dict *d = dictCreate(&setDictType,NULL);
     robj *o = createObject(OBJ_SET,d);
     o->encoding = OBJ_ENCODING_HT;
@@ -346,7 +349,7 @@ void freeStreamObject(robj *o) {
     freeStream(o->ptr);
 }
 
-void incrRefCount(robj *o) {
+void incrRefCount(robj *o) {//引用计数++
     if (o->refcount < OBJ_FIRST_SPECIAL_REFCOUNT) {
         o->refcount++;
     } else {
@@ -359,7 +362,7 @@ void incrRefCount(robj *o) {
 }
 
 void decrRefCount(robj *o) {
-    if (o->refcount == 1) {
+    if (o->refcount == 1) {//如果引用树是1，释放内存
         switch(o->type) {
         case OBJ_STRING: freeStringObject(o); break;
         case OBJ_LIST: freeListObject(o); break;
@@ -396,14 +399,17 @@ void decrRefCountVoid(void *o) {
  *    functionThatWillIncrementRefCount(obj);
  *    decrRefCount(obj);
  */
-robj *resetRefCount(robj *obj) {
+robj *resetRefCount(robj *obj) {//重置引用计数
     obj->refcount = 0;
     return obj;
 }
 
 int checkType(client *c, robj *o, int type) {
     if (o->type != type) {
-        addReply(c,shared.wrongtypeerr);
+        addReply(c,shared.w
+
+
+        rongtypeerr);
         return 1;
     }
     return 0;

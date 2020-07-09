@@ -9,8 +9,8 @@
  * millisecond if the clock jumped backward) will use the millisecond time
  * of the latest generated ID and an incremented sequence. */
 typedef struct streamID {
-    uint64_t ms;        /* Unix time in milliseconds. */
-    uint64_t seq;       /* Sequence number. */
+    uint64_t ms;        /* unix时间戳，毫秒为单位. */
+    uint64_t seq;       /* 序列号. */
 } streamID;
 
 typedef struct stream {

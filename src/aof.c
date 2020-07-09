@@ -1,4 +1,4 @@
-/*
+l/*
  * Copyright (c) 2009-2012, Salvatore Sanfilippo <antirez at gmail dot com>
  * All rights reserved.
  *
@@ -57,24 +57,25 @@ void aofClosePipes(void);
  * AOF_RW_BUF_BLOCK_SIZE bytes.
  * ------------------------------------------------------------------------- */
 
+//AOF中块的大小是10MB
 #define AOF_RW_BUF_BLOCK_SIZE (1024*1024*10)    /* 10 MB per block */
 
 typedef struct aofrwblock {
-    unsigned long used, free;
-    char buf[AOF_RW_BUF_BLOCK_SIZE];
+    unsigned long used, free;//used：已经使用的 free未使用的
+    char buf[AOF_RW_BUF_BLOCK_SIZE];//创建大小为10MB的缓存
 } aofrwblock;
 
 /* This function free the old AOF rewrite buffer if needed, and initialize
  * a fresh new one. It tests for server.aof_rewrite_buf_blocks equal to NULL
  * so can be used for the first initialization as well. */
-void aofRewriteBufferReset(void) {
-    if (server.aof_rewrite_buf_blocks)
-        listRelease(server.aof_rewrite_buf_blocks);
+void aofRewriteBufferReset(void) {//缓存区重置功能
+    if (server.aof_rewrite_buf_blocks)//服务器缓冲区列表头结点
+        listRelease(server.aof_rewrite_buf_blocks);//释放节点
 
-    server.aof_rewrite_buf_blocks = listCreate();
+    server.aof_rewrite_buf_blocks = listCreate();//创建一个新的链表头
     listSetFreeMethod(server.aof_rewrite_buf_blocks,zfree);
 }
-
+//返回当前AOF重写缓存池的大小
 /* Return the current size of the AOF rewrite buffer. */
 unsigned long aofRewriteBufferSize(void) {
     listNode *ln;
@@ -102,35 +103,35 @@ void aofChildWriteDiffData(aeEventLoop *el, int fd, void *privdata, int mask) {
     UNUSED(mask);
 
     while(1) {
-        ln = listFirst(server.aof_rewrite_buf_blocks);
-        block = ln ? ln->value : NULL;
+        ln = listFirst(server.aof_rewrite_buf_blocks);//获取缓存列表头
+        block = ln ? ln->value : NULL;//获取缓存块
         if (server.aof_stop_sending_diff || !block) {
             aeDeleteFileEvent(server.el,server.aof_pipe_write_data_to_child,
-                              AE_WRITABLE);
+                              AE_WRITABLE);//删除事件
             return;
         }
-        if (block->used > 0) {
+        if (block->used > 0) {//块使用量大于零
             nwritten = write(server.aof_pipe_write_data_to_child,
-                             block->buf,block->used);
+                             block->buf,block->used);//将数据写入磁盘
             if (nwritten <= 0) return;
             memmove(block->buf,block->buf+nwritten,block->used-nwritten);
-            block->used -= nwritten;
+            block->used -= nwritten;//由于已经写入nwritten,因此block释放nwritten空间
             block->free += nwritten;
         }
-        if (block->used == 0) listDelNode(server.aof_rewrite_buf_blocks,ln);
+        if (block->used == 0) listDelNode(server.aof_rewrite_buf_blocks,ln);//当前块的使用量减为零，释放节点
     }
 }
-
+//以追加的模式往缓冲区追加数据
 /* Append data to the AOF rewrite buffer, allocating new blocks if needed. */
 void aofRewriteBufferAppend(unsigned char *s, unsigned long len) {
-    listNode *ln = listLast(server.aof_rewrite_buf_blocks);
-    aofrwblock *block = ln ? ln->value : NULL;
+    listNode *ln = listLast(server.aof_rewrite_buf_blocks);//获取尾结点
+    aofrwblock *block = ln ? ln->value : NULL;//获取尾结点
 
     while(len) {
         /* If we already got at least an allocated block, try appending
          * at least some piece into it. */
         if (block) {
-            unsigned long thislen = (block->free < len) ? block->free : len;
+            unsigned long thislen = (block->free < len) ? block->free : len;//判断block中剩余的容量是否够用
             if (thislen) {  /* The current block is not already full. */
                 memcpy(block->buf+block->used, s, thislen);
                 block->used += thislen;
@@ -140,6 +141,7 @@ void aofRewriteBufferAppend(unsigned char *s, unsigned long len) {
             }
         }
 
+        //如果需要追加的数据仍然有剩余，继续开辟新的块进行追加
         if (len) { /* First block to allocate, or need another block. */
             int numblocks;
 
@@ -163,11 +165,12 @@ void aofRewriteBufferAppend(unsigned char *s, unsigned long len) {
     /* Install a file event to send data to the rewrite child if there is
      * not one already. */
     if (aeGetFileEvents(server.el,server.aof_pipe_write_data_to_child) == 0) {
+        //添加一个文件事件，实现对数据的磁盘写入
         aeCreateFileEvent(server.el, server.aof_pipe_write_data_to_child,
             AE_WRITABLE, aofChildWriteDiffData, NULL);
     }
 }
-
+//将缓存数据写入到指定的fd中
 /* Write the buffer (possibly composed of multiple blocks) into the specified
  * fd. If a short write or any other error happens -1 is returned,
  * otherwise the number of bytes written is returned. */

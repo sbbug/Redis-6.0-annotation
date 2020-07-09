@@ -5,7 +5,7 @@
  * Redis cluster data structures, defines, exported API.
  *----------------------------------------------------------------------------*/
 
-#define CLUSTER_SLOTS 16384
+#define CLUSTER_SLOTS 16384 //集群槽的大小
 #define CLUSTER_OK 0          /* Everything looks ok */
 #define CLUSTER_FAIL 1        /* The cluster can't work */
 #define CLUSTER_NAMELEN 40    /* sha1 hex length */
@@ -33,24 +33,24 @@
 
 struct clusterNode;
 
-/* clusterLink encapsulates everything needed to talk with a remote node. */
+/* clusterLink封装了与远程节点通信所需的所有东西. */
 typedef struct clusterLink {
-    mstime_t ctime;             /* Link creation time */
-    connection *conn;           /* Connection to remote node */
-    sds sndbuf;                 /* Packet send buffer */
-    sds rcvbuf;                 /* Packet reception buffer */
-    struct clusterNode *node;   /* Node related to this link if any, or NULL */
+    mstime_t ctime;             /* Link创建时间 */
+    connection *conn;           /* 连接到远程节点 */
+    sds sndbuf;                 /* 发送缓冲 */
+    sds rcvbuf;                 /* 接受缓冲 */
+    struct clusterNode *node;   /* 与此相连的相关节点 */
 } clusterLink;
 
 /* Cluster node flags and macros. */
 #define CLUSTER_NODE_MASTER 1     /* The node is a master */
 #define CLUSTER_NODE_SLAVE 2      /* The node is a slave */
-#define CLUSTER_NODE_PFAIL 4      /* Failure? Need acknowledge */
-#define CLUSTER_NODE_FAIL 8       /* The node is believed to be malfunctioning */
-#define CLUSTER_NODE_MYSELF 16    /* This node is myself */
-#define CLUSTER_NODE_HANDSHAKE 32 /* We have still to exchange the first ping */
+#define CLUSTER_NODE_PFAIL 4      /* Failure? Need acknowledge */ //将要失败状态，还未失败
+#define CLUSTER_NODE_FAIL 8       /* The node is believed to be malfunctioning *///已经失败
+#define CLUSTER_NODE_MYSELF 16    /* This node is myself *///节点本身
+#define CLUSTER_NODE_HANDSHAKE 32 /* We have still to exchange the first ping *///
 #define CLUSTER_NODE_NOADDR   64  /* We don't know the address of this node */
-#define CLUSTER_NODE_MEET 128     /* Send a MEET message to this node */
+#define CLUSTER_NODE_MEET 128     /* Send a MEET message to this node *///发送MEET消息头
 #define CLUSTER_NODE_MIGRATE_TO 256 /* Master elegible for replica migration. */
 #define CLUSTER_NODE_NOFAILOVER 512 /* Slave will not try to failver. */
 #define CLUSTER_NODE_NULL_NAME "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
@@ -104,56 +104,61 @@ typedef struct clusterLink {
 #define CLUSTER_MODULE_FLAG_NO_REDIRECTION (1<<2)
 
 /* This structure represent elements of node->fail_reports. */
+//存储集群中的节点故障
 typedef struct clusterNodeFailReport {
-    struct clusterNode *node;  /* Node reporting the failure condition. */
-    mstime_t time;             /* Time of the last report from this node. */
+    struct clusterNode *node;  /* 节点报告故障情况. */
+    mstime_t time;             /* 此节点的最后一个报告时间. */
 } clusterNodeFailReport;
 
+//节点基本属性信息
 typedef struct clusterNode {
-    mstime_t ctime; /* Node object creation time. */
-    char name[CLUSTER_NAMELEN]; /* Node name, hex string, sha1-size */
+    mstime_t ctime; /* 节点创建时间. */
+    char name[CLUSTER_NAMELEN]; /* 节点名称 */
     int flags;      /* CLUSTER_NODE_... */
     uint64_t configEpoch; /* Last configEpoch observed for this node */
     unsigned char slots[CLUSTER_SLOTS/8]; /* slots handled by this node */
     int numslots;   /* Number of slots handled by this node */
     int numslaves;  /* Number of slave nodes, if this is a master */
-    struct clusterNode **slaves; /* pointers to slave nodes */
-    struct clusterNode *slaveof; /* pointer to the master node. Note that it
-                                    may be NULL even if the node is a slave
-                                    if we don't have the master node in our
-                                    tables. */
-    mstime_t ping_sent;      /* Unix time we sent latest ping */
-    mstime_t pong_received;  /* Unix time we received the pong */
-    mstime_t fail_time;      /* Unix time when FAIL flag was set */
-    mstime_t voted_time;     /* Last time we voted for a slave of this master */
+    /*
+    slaves与slaveof代表了节点之间的master-slave关系。如果这是一个master节点，
+    那么它的slave节点的clusterNode指针存储在slaves数组中；
+    如果这是一个slave节点，那么slaveof指向了它的master节点的clusterNode。
+    */
+    struct clusterNode **slaves; /* 指向slaves节点指针 */
+    struct clusterNode *slaveof; /* 如果不存在master，即使是slave节点，那么仍然是空. */
+    mstime_t ping_sent;      /* 发送最新ping的时间 */
+    mstime_t pong_received;  /* 接收pong的时间 */
+    mstime_t fail_time;      /* 发送失败后的时间戳 */
+    mstime_t voted_time;     /* 最后一次为某个从节点投票时间 */
     mstime_t repl_offset_time;  /* Unix time we received offset for this node */
     mstime_t orphaned_time;     /* Starting time of orphaned master condition */
     long long repl_offset;      /* Last known repl offset for this node. */
-    char ip[NET_IP_STR_LEN];  /* Latest known IP address of this node */
-    int port;                   /* Latest known clients port of this node */
-    int cport;                  /* Latest known cluster port of this node. */
-    clusterLink *link;          /* TCP/IP link with this node */
-    list *fail_reports;         /* List of nodes signaling this as failing */
+    char ip[NET_IP_STR_LEN];  /* 此节点最新的已知的IP地址 */
+    int port;                   /* 节点最新客户端端口 */
+    int cport;                  /* 节点最新集群端口. */
+    clusterLink *link;          /* 此节点的tcp/ip连接端口 */
+    list *fail_reports;         /* 记录所有其他节点对该节点的下线报告 */
 } clusterNode;
 
+//集群节点状态结构
 typedef struct clusterState {
     clusterNode *myself;  /* This node */
-    uint64_t currentEpoch;
+    uint64_t currentEpoch;//当前的次数
     int state;            /* CLUSTER_OK, CLUSTER_FAIL, ... */
     int size;             /* Num of master nodes with at least one slot */
     dict *nodes;          /* Hash table of name -> clusterNode structures */
-    dict *nodes_black_list; /* Nodes we don't re-add for a few seconds. */
-    clusterNode *migrating_slots_to[CLUSTER_SLOTS];
+    dict *nodes_black_list; /* Nodes we don't re-add for a few seconds. *///节点黑名单
+    clusterNode *migrating_slots_to[CLUSTER_SLOTS];//
     clusterNode *importing_slots_from[CLUSTER_SLOTS];
-    clusterNode *slots[CLUSTER_SLOTS];
+    clusterNode *slots[CLUSTER_SLOTS];//每个节点负责一定数量的虚拟槽
     uint64_t slots_keys_count[CLUSTER_SLOTS];
     rax *slots_to_keys;
     /* The following fields are used to take the slave state on elections. */
-    mstime_t failover_auth_time; /* Time of previous or next election. */
-    int failover_auth_count;    /* Number of votes received so far. */
+    mstime_t failover_auth_time; /* 上次或者下次选举的时间. */
+    int failover_auth_count;    /* 目前为止获得的投票. */
     int failover_auth_sent;     /* True if we already asked for votes. */
     int failover_auth_rank;     /* This slave rank for current auth request. */
-    uint64_t failover_auth_epoch; /* Epoch of the current election. */
+    uint64_t failover_auth_epoch; /* 当前选举的term. */
     int cant_failover_reason;   /* Why a slave is currently not able to
                                    failover. See the CANT_FAILOVER_* macros. */
     /* Manual failover state in common. */
@@ -176,7 +181,7 @@ typedef struct clusterState {
                                        excluding nodes without address. */
 } clusterState;
 
-/* Redis cluster messages header */
+/* Redis 集群消息头 */
 
 /* Initially we don't know our "name", but we'll find it once we connect
  * to the first node, using the getsockname() function. Then we'll use this
@@ -193,7 +198,7 @@ typedef struct {
 } clusterMsgDataGossip;
 
 typedef struct {
-    char nodename[CLUSTER_NAMELEN];
+    char nodename[CLUSTER_NAMELEN];//节点名字
 } clusterMsgDataFail;
 
 typedef struct {
@@ -252,10 +257,11 @@ typedef struct {
     uint16_t port;      /* TCP base port number. */
     uint16_t type;      /* Message type */
     uint16_t count;     /* Only used for some kind of messages. */
-    uint64_t currentEpoch;  /* The epoch accordingly to the sending node. */
+    uint64_t currentEpoch;  /* 发送节点的任期. */
     uint64_t configEpoch;   /* The config epoch if it's a master, or the last
                                epoch advertised by its master if it is a
                                slave. */
+    //如果节点是master，则是主节点的复制偏移量；如果节点是slave则是处理的复制偏移量
     uint64_t offset;    /* Master replication offset if node is a master or
                            processed replication offset if node is a slave. */
     char sender[CLUSTER_NAMELEN]; /* Name of the sender node */

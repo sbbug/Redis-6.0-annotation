@@ -640,13 +640,14 @@ typedef struct clientReplyBlock {
 /* Redis database representation. There are multiple databases identified
  * by integers from 0 (the default database) up to the max configured
  * database. The database number is the 'id' field in the structure. */
+ //redis中的数据库类
 typedef struct redisDb {
     dict *dict;                 /* The keyspace for this DB */
-    dict *expires;              /* Timeout of keys with a timeout set */
-    dict *blocking_keys;        /* Keys with clients waiting for data (BLPOP)*/
+    dict *expires;              /* 具有超时设置的key集合 */
+    dict *blocking_keys;        /* 被阻塞的客户端的key*/
     dict *ready_keys;           /* Blocked keys that received a PUSH */
     dict *watched_keys;         /* WATCHED keys for MULTI/EXEC CAS */
-    int id;                     /* Database ID */
+    int id;                     /* Database ID *///数据库编号
     long long avg_ttl;          /* Average TTL, just for stats */
     unsigned long expires_cursor; /* Cursor of the active expire cycle. */
     list *defrag_later;         /* List of key names to attempt to defrag one by one, gradually. */
@@ -763,26 +764,34 @@ typedef struct user {
 #define CLIENT_ID_AOF (UINT64_MAX) /* Reserved ID for the AOF client. If you
                                       need more reserved IDs use UINT64_MAX-1,
                                       -2, ... and so forth. */
-
+//定义客户端描述结构体
 typedef struct client {
     uint64_t id;            /* Client incremental unique ID. */
+    //客户端网络连接
     connection *conn;
+    //RESP协议版本
     int resp;               /* RESP protocol version. Can be 2 or 3. */
+    //指向当前选中的数据库
     redisDb *db;            /* Pointer to currently SELECTed DB. */
     robj *name;             /* As set by CLIENT SETNAME. */
+    //查询缓存
     sds querybuf;           /* Buffer we use to accumulate client queries. */
+    //查询缓存读位置
     size_t qb_pos;          /* The position we have read in querybuf. */
     sds pending_querybuf;   /* If this client is flagged as master, this buffer
                                represents the yet not applied portion of the
                                replication stream that we are receiving from
                                the master. */
     size_t querybuf_peak;   /* Recent (100ms or more) peak of querybuf size. */
+    //当前命令参数个数
     int argc;               /* Num of arguments of current command. */
     robj **argv;            /* Arguments of current command. */
     struct redisCommand *cmd, *lastcmd;  /* Last command executed. */
+    //当前客户端用户
     user *user;             /* User associated with this connection. If the
                                user is set to NULL the connection can do
                                anything (admin). */
+    //请求协议类型
     int reqtype;            /* Request protocol type: PROTO_REQ_* */
     int multibulklen;       /* Number of multi bulk arguments left to read. */
     long bulklen;           /* Length of bulk argument in multi bulk request. */
@@ -817,7 +826,9 @@ typedef struct client {
     blockingState bpop;     /* blocking state */
     long long woff;         /* Last write global replication offset. */
     list *watched_keys;     /* Keys WATCHED for MULTI/EXEC CAS */
+    //客户端订阅的频道列表
     dict *pubsub_channels;  /* channels a client is interested in (SUBSCRIBE) */
+    //客户端订阅的模式频道列表
     list *pubsub_patterns;  /* patterns a client is interested in (SUBSCRIBE) */
     sds peerid;             /* Cached peer ID. */
     listNode *client_list_node; /* list node in client list */
@@ -846,6 +857,7 @@ typedef struct client {
     uint64_t client_cron_last_memory_usage;
     int      client_cron_last_memory_type;
     /* Response buffer */
+    //用来响应的缓存
     int bufpos;
     char buf[PROTO_REPLY_CHUNK_BYTES];
 } client;
@@ -934,6 +946,7 @@ typedef struct redisOpArray {
 
 /* This structure is returned by the getMemoryOverheadData() function in
  * order to return memory overhead information. */
+ //存储内存开销信息
 struct redisMemOverhead {
     size_t peak_allocated;
     size_t total_allocated;
@@ -1202,7 +1215,7 @@ struct redisServer {
     int aof_load_truncated;         /* Don't stop on unexpected AOF EOF. */
     int aof_use_rdb_preamble;       /* Use RDB preamble on AOF rewrites. */
     /* AOF pipes used to communicate between parent and child during rewrite. */
-    int aof_pipe_write_data_to_child;
+    int aof_pipe_write_data_to_child;//父进程向子进程写数据的fd
     int aof_pipe_read_data_from_parent;
     int aof_pipe_write_ack_to_parent;
     int aof_pipe_read_ack_from_child;

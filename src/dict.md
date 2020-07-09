@@ -1,3 +1,4 @@
+
 字典中的node节点:
      
      typedef struct dictEntry {//定义字典所用到的k-v结构体
@@ -50,3 +51,23 @@
         /* unsafe iterator fingerprint for misuse detection. */
         long long fingerprint;
     } dictIterator;
+    
+dict的渐进式扩容:
+    dict字典为了方便扩容，内部结构定义了两个字典
+    
+    typedef struct dict {
+    ...
+    dictht ht[2];//定义两个table
+    ...
+    } dict;
+    
+    
+    扩容的方式:
+        哈希表在进行扩容时，并不是一次性将哈希节点直接扩容到指定位置，而是采用
+        渐进式方法进行，每次执行一个其它操作，均会判断当前是否开启了rehash模式
+        如果开启了rehash模式，那么进行单步扩容。
+        关于每次哈希表进行扩容时，所需要扩容的大小。首先rehash触发的条件:
+        static int _dictExpandIfNeeded(dict *d)通过该方法来进行判断，Redis的DB是否需要
+        进行rehash.
+        
+    

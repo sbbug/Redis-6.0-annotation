@@ -85,6 +85,7 @@ static int rioBufferFlush(rio *r) {
     return 1; /* Nothing to do, our write just appends to the buffer. */
 }
 
+//定义一个rio结构体变量。全局
 static const rio rioBufferIO = {
     rioBufferRead,
     rioBufferWrite,
@@ -111,19 +112,21 @@ static size_t rioFileWrite(rio *r, const void *buf, size_t len) {
     size_t retval;
 
     retval = fwrite(buf,len,1,r->io.file.fp);
-    r->io.file.buffered += len;
+    r->io.file.buffered += len;//rio文件缓存增加
 
+    //是否异步写入文件
     if (r->io.file.autosync &&
         r->io.file.buffered >= r->io.file.autosync)
     {
-        fflush(r->io.file.fp);
+        fflush(r->io.file.fp);//刷新流
         redis_fsync(fileno(r->io.file.fp));
-        r->io.file.buffered = 0;
+        r->io.file.buffered = 0;//缓冲置零
     }
     return retval;
 }
 
 /* Returns 1 or 0 for success/failure. */
+//将数据读取到buf中
 static size_t rioFileRead(rio *r, void *buf, size_t len) {
     return fread(buf,len,1,r->io.file.fp);
 }
@@ -139,6 +142,7 @@ static int rioFileFlush(rio *r) {
     return (fflush(r->io.file.fp) == 0) ? 1 : 0;
 }
 
+//定义rio文件操作变量
 static const rio rioFileIO = {
     rioFileRead,
     rioFileWrite,
@@ -427,6 +431,7 @@ size_t rioWriteBulkString(rio *r, const char *buf, size_t len) {
 }
 
 /* Write a long long value in format: "$<count>\r\n<payload>\r\n". */
+//将long long 类型值格式化
 size_t rioWriteBulkLongLong(rio *r, long long l) {
     char lbuf[32];
     unsigned int llen;
@@ -440,6 +445,6 @@ size_t rioWriteBulkDouble(rio *r, double d) {
     char dbuf[128];
     unsigned int dlen;
 
-    dlen = snprintf(dbuf,sizeof(dbuf),"%.17g",d);
+    dlen = snprintf(dbuf,sizeof(dbuf),"%.17g",d);//将double值格式化为字符串
     return rioWriteBulkString(r,dbuf,dlen);
 }

@@ -57,6 +57,7 @@ int RDBGeneratedByReplication = 0;
  * pair. Mostly useful for logging, since we want to log a slave using its
  * IP address and its listening port which is more clear for the user, for
  * example: "Closing connection with replica 10.1.2.3:6380". */
+ //获取slave的IP地址
 char *replicationGetSlaveName(client *c) {
     static char buf[NET_PEER_ID_LEN];
     char ip[NET_IP_STR_LEN];
@@ -218,10 +219,11 @@ void replicationFeedSlaves(list *slaves, int dictid, robj **argv, int argc) {
      * propagate *identical* replication stream. In this way this slave can
      * advertise the same replication ID as the master (since it shares the
      * master replication history and has the same backlog and offsets). */
-    if (server.masterhost != NULL) return;
+    if (server.masterhost != NULL) return;//当前节点不受master
 
     /* If there aren't slaves, and there is no backlog buffer to populate,
      * we can return ASAP. */
+     //没有slave
     if (server.repl_backlog == NULL && listLength(slaves) == 0) return;
 
     /* We can't have slaves attached and no backlog. */

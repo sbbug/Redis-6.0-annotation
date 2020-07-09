@@ -48,7 +48,7 @@ extern char **environ;
 extern SSL_CTX *redis_tls_ctx;
 #endif
 
-#define REDIS_SENTINEL_PORT 26379
+#define REDIS_SENTINEL_PORT 26379//哨兵模式端口
 
 /* ======================== Sentinel global state =========================== */
 
@@ -56,18 +56,18 @@ extern SSL_CTX *redis_tls_ctx;
 typedef struct sentinelAddr {
     char *ip;
     int port;
-} sentinelAddr;
+} sentinelAddr;//套接字
 
 /* A Sentinel Redis Instance object is monitoring. */
-#define SRI_MASTER  (1<<0)
-#define SRI_SLAVE   (1<<1)
-#define SRI_SENTINEL (1<<2)
-#define SRI_S_DOWN (1<<3)   /* Subjectively down (no quorum). */
-#define SRI_O_DOWN (1<<4)   /* Objectively down (confirmed by others). */
-#define SRI_MASTER_DOWN (1<<5) /* A Sentinel with this flag set thinks that
+#define SRI_MASTER  (1<<0) //0
+#define SRI_SLAVE   (1<<1) //2
+#define SRI_SENTINEL (1<<2) //4
+#define SRI_S_DOWN (1<<3)   /* Subjectively down (no quorum). *///8
+#define SRI_O_DOWN (1<<4)   /* Objectively down (confirmed by others). *///16
+#define SRI_MASTER_DOWN (1<<5) /* A Sentinel with this flag set thinks that//32
                                    its master is down. */
 #define SRI_FAILOVER_IN_PROGRESS (1<<6) /* Failover is in progress for
-                                           this master. */
+                                           this master. *///64
 #define SRI_PROMOTED (1<<7)            /* Slave selected for promotion. */
 #define SRI_RECONF_SENT (1<<8)     /* SLAVEOF <newmaster> sent. */
 #define SRI_RECONF_INPROG (1<<9)   /* Slave synchronization in progress. */
@@ -76,12 +76,13 @@ typedef struct sentinelAddr {
 #define SRI_SCRIPT_KILL_SENT (1<<12) /* SCRIPT KILL already sent on -BUSY */
 
 /* Note: times are in milliseconds. */
-#define SENTINEL_INFO_PERIOD 10000
-#define SENTINEL_PING_PERIOD 1000
-#define SENTINEL_ASK_PERIOD 1000
-#define SENTINEL_PUBLISH_PERIOD 2000
+//哨兵模式下每个命令的周期
+#define SENTINEL_INFO_PERIOD 10000 //10s
+#define SENTINEL_PING_PERIOD 1000 //1s
+#define SENTINEL_ASK_PERIOD 1000 //1s
+#define SENTINEL_PUBLISH_PERIOD 2000 //2s
 #define SENTINEL_DEFAULT_DOWN_AFTER 30000
-#define SENTINEL_HELLO_CHANNEL "__sentinel__:hello"
+#define SENTINEL_HELLO_CHANNEL "__sentinel__:hello"//固定通道
 #define SENTINEL_TILT_TRIGGER 2000
 #define SENTINEL_TILT_PERIOD (SENTINEL_PING_PERIOD*30)
 #define SENTINEL_DEFAULT_SLAVE_PRIORITY 100
@@ -111,7 +112,7 @@ typedef struct sentinelAddr {
  * flags. */
 #define SENTINEL_NO_FLAGS 0
 #define SENTINEL_GENERATE_EVENT (1<<16)
-#define SENTINEL_LEADER (1<<17)
+#define SENTINEL_LEADER (1<<17) //leader
 #define SENTINEL_OBSERVER (1<<18)
 
 /* Script execution flags and limits. */
@@ -143,46 +144,60 @@ typedef struct sentinelAddr {
  * Links are shared only for Sentinels: master and slave instances have
  * a link with refcount = 1, always. */
 typedef struct instanceLink {
+
     int refcount;          /* Number of sentinelRedisInstance owners. */
     int disconnected;      /* Non-zero if we need to reconnect cc or pc. */
     int pending_commands;  /* Number of commands sent waiting for a reply. */
+    //需要建立两个链接
     redisAsyncContext *cc; /* Hiredis context for commands. */
     redisAsyncContext *pc; /* Hiredis context for Pub / Sub. */
     mstime_t cc_conn_time; /* cc connection time. */
     mstime_t pc_conn_time; /* pc connection time. */
+    //最后活跃时间
     mstime_t pc_last_activity; /* Last time we received any message. */
     mstime_t last_avail_time; /* Last time the instance replied to ping with
                                  a reply we consider valid. */
+    //最后一个ping发出的时间，但还未接收到pong
     mstime_t act_ping_time;   /* Time at which the last pending ping (no pong
                                  received after it) was sent. This field is
                                  set to 0 when a pong is received, and set again
                                  to the current time if the value is 0 and a new
                                  ping is sent. */
+    //上一次ping的时间
     mstime_t last_ping_time;  /* Time at which we sent the last ping. This is
                                  only used to avoid sending too many pings
                                  during failure. Idle time is computed using
                                  the act_ping_time field. */
+    //最后一个响应pong的时间
     mstime_t last_pong_time;  /* Last time the instance replied to ping,
                                  whatever the reply was. That's used to check
                                  if the link is idle and must be reconnected. */
+    //最后一次尝试重连的时间
     mstime_t last_reconn_time;  /* Last reconnection attempt performed when
                                    the link was down. */
 } instanceLink;
-
+//基于redis的哨兵实例
 typedef struct sentinelRedisInstance {
     int flags;      /* See SRI_... defines */
+    //哨兵,哨兵里的master节点名字
     char *name;     /* Master name from the point of view of this sentinel. */
+    //哨兵id
     char *runid;    /* Run ID of this instance, or unique ID if is a Sentinel.*/
     uint64_t config_epoch;  /* Configuration epoch. */
+    //哨兵监控的master信息
     sentinelAddr *addr; /* Master host. */
+    //连接实例
     instanceLink *link; /* Link to the instance, may be shared for Sentinels. */
+    //最后一次订阅时间
     mstime_t last_pub_time;   /* Last time we sent hello via Pub/Sub. */
     mstime_t last_hello_time; /* Only used if SRI_SENTINEL is set. Last time
                                  we received a hello from this Sentinel
                                  via Pub/Sub. */
     mstime_t last_master_down_reply_time; /* Time of last reply to
                                              SENTINEL is-master-down command. */
+    //主观判断时间
     mstime_t s_down_since_time; /* Subjectively down since time. */
+    //客观判断时间
     mstime_t o_down_since_time; /* Objectively down since time. */
     mstime_t down_after_period; /* Consider it down after that period. */
     mstime_t info_refresh;  /* Time at which we received INFO output from it. */
@@ -201,9 +216,9 @@ typedef struct sentinelRedisInstance {
     mstime_t slave_conf_change_time; /* Last time slave master addr changed. */
 
     /* Master specific. */
-    dict *sentinels;    /* Other sentinels monitoring the same master. */
-    dict *slaves;       /* Slaves for this master instance. */
-    unsigned int quorum;/* Number of sentinels that need to agree on failure. */
+    dict *sentinels;    /* 监听同一个master的其它哨兵. */
+    dict *slaves;       /* 被监听master的从节点 */
+    unsigned int quorum;/* 需要就失败达成一致的哨兵的数量 */
     int parallel_syncs; /* How many slaves to reconfigure at same time. */
     char *auth_pass;    /* Password to use for AUTH against master & replica. */
     char *auth_user;    /* Username for ACLs AUTH against master & replica. */
@@ -279,7 +294,7 @@ typedef struct sentinelScriptJob {
 
 typedef struct redisAeEvents {
     redisAsyncContext *context;
-    aeEventLoop *loop;
+    aeEventLoop *loop;//事件处理器
     int fd;
     int reading, writing;
 } redisAeEvents;

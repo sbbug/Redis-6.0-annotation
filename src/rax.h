@@ -130,10 +130,10 @@ typedef struct raxNode {
     unsigned char data[];
 } raxNode;
 
-typedef struct rax {
+typedef struct rax {//基数树
     raxNode *head;
-    uint64_t numele;
-    uint64_t numnodes;
+    uint64_t numele;//元素个数
+    uint64_t numnodes;//节点个数
 } rax;
 
 /* Stack data structure used by raxLowWalk() in order to, optionally, return
@@ -142,6 +142,7 @@ typedef struct rax {
 #define RAX_STACK_STATIC_ITEMS 32
 typedef struct raxStack {
     void **stack; /* Points to static_items or an heap allocated array. */
+    //items当前的项目数量 maxitems代表总空间
     size_t items, maxitems; /* Number of items contained and total space. */
     /* Up to RAXSTACK_STACK_ITEMS items we avoid to allocate on the heap
      * and use this static array of pointers instead. */

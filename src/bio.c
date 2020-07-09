@@ -61,7 +61,7 @@
 #include "server.h"
 #include "bio.h"
 
-static pthread_t bio_threads[BIO_NUM_OPS];//定义线程数组
+static pthread_t bio_threads[BIO_NUM_OPS];//定义线程数组，初始值是3
 static pthread_mutex_t bio_mutex[BIO_NUM_OPS];//定义每个线程对应的锁对象
 static pthread_cond_t bio_newjob_cond[BIO_NUM_OPS];//条件变量
 static pthread_cond_t bio_step_cond[BIO_NUM_OPS];

@@ -56,6 +56,7 @@ struct _rio {
     void (*update_cksum)(struct _rio *, const void *buf, size_t len);
 
     /* The current checksum and flags (see RIO_FLAG_*) */
+    //校验和，验证数据是否正确
     uint64_t cksum, flags;
 
     /* number of bytes read or written */
@@ -99,31 +100,40 @@ typedef struct _rio rio;
 /* The following functions are our interface with the stream. They'll call the
  * actual implementation of read / write / tell, and will update the checksum
  * if needed. */
-
-static inline size_t rioWrite(rio *r, const void *buf, size_t len) {
+//Redis中I/O写操作,将buffer中的数据写到rio中
+static inline size_t rioWrite(rio *r, const void *buf, size_t len) { //buf 是const，参数不可修改
     if (r->flags & RIO_FLAG_WRITE_ERROR) return 0;
     while (len) {
+
+        //可以写入的字节数量
         size_t bytes_to_write = (r->max_processing_chunk && r->max_processing_chunk < len) ? r->max_processing_chunk : len;
         if (r->update_cksum) r->update_cksum(r,buf,bytes_to_write);
+        //将bytes_to_write的数据写入到rio中
         if (r->write(r,buf,bytes_to_write) == 0) {
             r->flags |= RIO_FLAG_WRITE_ERROR;
             return 0;
         }
+        //buf指针移动
         buf = (char*)buf + bytes_to_write;
+        //长度递减
         len -= bytes_to_write;
+        //已经处理后的数据量增加
         r->processed_bytes += bytes_to_write;
     }
     return 1;
 }
-
+//将rio中的数据读取到buf中
 static inline size_t rioRead(rio *r, void *buf, size_t len) {
     if (r->flags & RIO_FLAG_READ_ERROR) return 0;
     while (len) {
+        //需要读取的字节
         size_t bytes_to_read = (r->max_processing_chunk && r->max_processing_chunk < len) ? r->max_processing_chunk : len;
+        //读取数据
         if (r->read(r,buf,bytes_to_read) == 0) {
             r->flags |= RIO_FLAG_READ_ERROR;
             return 0;
         }
+        //更新数据校验和
         if (r->update_cksum) r->update_cksum(r,buf,bytes_to_read);
         buf = (char*)buf + bytes_to_read;
         len -= bytes_to_read;

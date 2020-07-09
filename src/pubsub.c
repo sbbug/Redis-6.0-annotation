@@ -40,14 +40,15 @@ int clientSubscriptionsCount(client *c);
  * message. However if the caller sets 'msg' as NULL, it will be able
  * to send a special message (for instance an Array type) by using the
  * addReply*() API family. */
+ //往客户端发送消息
 void addReplyPubsubMessage(client *c, robj *channel, robj *msg) {
     if (c->resp == 2)
-        addReply(c,shared.mbulkhdr[3]);
+        addReply(c,shared.mbulkhdr[3]);//将shared.mbulkhdr[3]添加到客户端发送缓存
     else
         addReplyPushLen(c,3);
     addReply(c,shared.messagebulk);
-    addReplyBulk(c,channel);
-    if (msg) addReplyBulk(c,msg);
+    addReplyBulk(c,channel);//添加一个Redis对象作为批量回复
+    if (msg) addReplyBulk(c,msg);//消息不为空，添加消息
 }
 
 /* Send a pubsub message of type "pmessage" to the client. The difference
@@ -64,7 +65,7 @@ void addReplyPubsubPatMessage(client *c, robj *pat, robj *channel, robj *msg) {
     addReplyBulk(c,msg);
 }
 
-/* Send the pubsub subscription notification to the client. */
+/* 向客户端发送订阅通知. */
 void addReplyPubsubSubscribed(client *c, robj *channel) {
     if (c->resp == 2)
         addReply(c,shared.mbulkhdr[3]);
@@ -79,6 +80,7 @@ void addReplyPubsubSubscribed(client *c, robj *channel) {
  * Channel can be NULL: this is useful when the client sends a mass
  * unsubscribe command but there are no channels to unsubscribe from: we
  * still send a notification. */
+ //向客户端发送取消订阅的通知
 void addReplyPubsubUnsubscribed(client *c, robj *channel) {
     if (c->resp == 2)
         addReply(c,shared.mbulkhdr[3]);

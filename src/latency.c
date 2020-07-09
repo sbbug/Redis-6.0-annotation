@@ -71,7 +71,9 @@ int THPIsEnabled(void) {
         return 0;
     }
     fclose(fp);
-    return (strstr(buf,"[never]") == NULL) ? 1 : 0;
+    return (strstr(buf,"[never]") == NUL
+
+    L) ? 1 : 0;
 }
 #endif
 

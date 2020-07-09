@@ -84,6 +84,7 @@
 /* NOTE: WHEN ADDING NEW RDB TYPE, UPDATE rdbIsObjectType() BELOW */
 
 /* Object types for encoded objects. */
+//已经编码对象的对象类型
 #define RDB_TYPE_HASH_ZIPMAP    9
 #define RDB_TYPE_LIST_ZIPLIST  10
 #define RDB_TYPE_SET_INTSET    11
@@ -93,7 +94,7 @@
 #define RDB_TYPE_STREAM_LISTPACKS 15
 /* NOTE: WHEN ADDING NEW RDB TYPE, UPDATE rdbIsObjectType() BELOW */
 
-/* Test if a type is an object type. */
+/* 验证t是否为对象类型. */
 #define rdbIsObjectType(t) ((t >= 0 && t <= 7) || (t >= 9 && t <= 15))
 
 /* Special RDB opcodes (saved/loaded with rdbSaveType/rdbLoadType). */
@@ -121,7 +122,7 @@
 #define RDB_LOAD_PLAIN  (1<<1)
 #define RDB_LOAD_SDS    (1<<2)
 
-/* flags on the purpose of rdb save or load */
+/*用于rdb保存或者加载的标志 */
 #define RDBFLAGS_NONE 0                 /* No special RDB loading. */
 #define RDBFLAGS_AOF_PREAMBLE (1<<0)    /* Load/save the RDB as AOF preamble. */
 #define RDBFLAGS_REPLICATION (1<<1)     /* Load/save for SYNC. */

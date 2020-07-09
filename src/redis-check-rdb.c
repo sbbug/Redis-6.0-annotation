@@ -40,9 +40,9 @@ struct {
     rio *rio;
     robj *key;                      /* Current key we are reading. */
     int key_type;                   /* Current key type if != -1. */
-    unsigned long keys;             /* Number of keys processed. */
-    unsigned long expires;          /* Number of keys with an expire. */
-    unsigned long already_expired;  /* Number of keys already expired. */
+    unsigned long keys;             /* 已处理的键树*/
+    unsigned long expires;          /* 带有过期设置的键数. */
+    unsigned long already_expired;  /* 已经过期的key. */
     int doing;                      /* The state while reading the RDB. */
     int error_set;                  /* True if error is populated. */
     char error[1024];
@@ -176,8 +176,9 @@ void rdbCheckSetupSignals(void) {
  * 1 is returned.
  * The file is specified as a filename in 'rdbfilename' if 'fp' is not NULL,
  * otherwise the already open file 'fp' is checked. */
+ //对rdb文件做合法性检查，正常返回0否则返回1
 int redis_check_rdb(char *rdbfilename, FILE *fp) {
-    uint64_t dbid;
+    uint64_t dbid;//
     int type, rdbver;
     char buf[1024];
     long long expiretime, now = mstime();
@@ -186,17 +187,22 @@ int redis_check_rdb(char *rdbfilename, FILE *fp) {
     int closefile = (fp == NULL);
     if (fp == NULL && (fp = fopen(rdbfilename,"r")) == NULL) return 1;
 
-    rioInitWithFile(&rdb,fp);
+    rioInitWithFile(&rdb,fp);//转换为redis内部的i/o
     rdbstate.rio = &rdb;
     rdb.update_cksum = rdbLoadProgressCallback;
+
+    /*
+    对rdb文件头的签名与版本号做验证
+    */
+    //读取rdb的前9个字节到buf中
     if (rioRead(&rdb,buf,9) == 0) goto eoferr;
-    buf[9] = '\0';
-    if (memcmp(buf,"REDIS",5) != 0) {
+    buf[9] = '\0';//结束标志
+    if (memcmp(buf,"REDIS",5) != 0) {//判断签名是否对
         rdbCheckError("Wrong signature trying to load DB from file");
         goto err;
     }
-    rdbver = atoi(buf+5);
-    if (rdbver < 1 || rdbver > RDB_VERSION) {
+    rdbver = atoi(buf+5);//将版本号字符串转换为整型
+    if (rdbver < 1 || rdbver > RDB_VERSION) {//rdb数据的版本验证
         rdbCheckError("Can't handle RDB format version %d",rdbver);
         goto err;
     }
@@ -204,7 +210,7 @@ int redis_check_rdb(char *rdbfilename, FILE *fp) {
     expiretime = -1;
     startLoadingFile(fp, rdbfilename, RDBFLAGS_NONE);
     while(1) {
-        robj *key, *val;
+        robj *key, *val;//创建Redis对象
 
         /* Read type. */
         rdbstate.doing = RDB_CHECK_DOING_READ_TYPE;

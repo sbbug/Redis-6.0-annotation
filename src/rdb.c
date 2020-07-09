@@ -79,13 +79,13 @@ void rdbReportError(int corruption_error, int linenum, char *reason, ...) {
     serverLog(LL_WARNING, "Terminating server after rdb file reading failure.");
     exit(1);
 }
-
+//rdb数据写入
 static int rdbWriteRaw(rio *rdb, void *p, size_t len) {
     if (rdb && rioWrite(rdb,p,len) == 0)
         return -1;
     return len;
 }
-
+//根据类型保存
 int rdbSaveType(rio *rdb, unsigned char type) {
     return rdbWriteRaw(rdb,&type,1);
 }
@@ -93,7 +93,7 @@ int rdbSaveType(rio *rdb, unsigned char type) {
 /* Load a "type" in RDB format, that is a one byte unsigned integer.
  * This function is not only used to load object types, but also special
  * "types" like the end-of-file type, the EXPIRE type, and so forth. */
-int rdbLoadType(rio *rdb) {
+int rdbLoadType(rio *rdb) {//获取rdb的载入类型
     unsigned char type;
     if (rioRead(rdb,&type,1) == 0) return -1;
     return type;
@@ -104,7 +104,7 @@ int rdbLoadType(rio *rdb) {
  * opcode. On error -1 is returned, however this could be a valid time, so
  * to check for loading errors the caller should call rioGetReadError() after
  * calling this function. */
-time_t rdbLoadTime(rio *rdb) {
+time_t rdbLoadTime(rio *rdb) {//获取rdb的载入时间
     int32_t t32;
     if (rioRead(rdb,&t32,4) == 0) return -1;
     return (time_t)t32;
@@ -112,8 +112,8 @@ time_t rdbLoadTime(rio *rdb) {
 
 int rdbSaveMillisecondTime(rio *rdb, long long t) {
     int64_t t64 = (int64_t) t;
-    memrev64ifbe(&t64); /* Store in little endian. */
-    return rdbWriteRaw(rdb,&t64,8);
+    memrev64ifbe(&t64); /* 使用小端模式存储. */
+    return rdbWriteRaw(rdb,&t64,8);//数据写入
 }
 
 /* This function loads a time from the RDB file. It gets the version of the
@@ -145,8 +145,8 @@ long long rdbLoadMillisecondTime(rio *rdb, int rdbver) {
 int rdbSaveLen(rio *rdb, uint64_t len) {
     unsigned char buf[2];
     size_t nwritten;
-
-    if (len < (1<<6)) {
+    //读len长度做判断
+    if (len < (1<<6)) {//64
         /* Save a 6 bit len */
         buf[0] = (len&0xFF)|(RDB_6BITLEN<<6);
         if (rdbWriteRaw(rdb,buf,1) == -1) return -1;
@@ -265,7 +265,7 @@ void *rdbLoadIntegerObject(rio *rdb, int enctype, int flags, size_t *lenptr) {
     int plain = flags & RDB_LOAD_PLAIN;
     int sds = flags & RDB_LOAD_SDS;
     int encode = flags & RDB_LOAD_ENC;
-    unsigned char enc[4];
+    unsigned char enc[4];//载入四个字节的数据
     long long val;
 
     if (enctype == RDB_ENC_INT8) {
@@ -324,6 +324,7 @@ ssize_t rdbSaveLzfBlob(rio *rdb, void *data, size_t compress_len,
     ssize_t n, nwritten = 0;
 
     /* Data compressed! Let's save it on disk */
+    //将压缩后的数据保存到磁盘
     byte = (RDB_ENCVAL<<6)|RDB_ENC_LZF;
     if ((n = rdbWriteRaw(rdb,&byte,1)) == -1) goto writeerr;
     nwritten += n;
@@ -342,7 +343,7 @@ ssize_t rdbSaveLzfBlob(rio *rdb, void *data, size_t compress_len,
 writeerr:
     return -1;
 }
-
+//rdb将字符串保存
 ssize_t rdbSaveLzfStringObject(rio *rdb, unsigned char *s, size_t len) {
     size_t comprlen, outlen;
     void *out;
@@ -351,7 +352,7 @@ ssize_t rdbSaveLzfStringObject(rio *rdb, unsigned char *s, size_t len) {
     if (len <= 4) return 0;
     outlen = len-4;
     if ((out = zmalloc(outlen+1)) == NULL) return 0;
-    comprlen = lzf_compress(s, len, out, outlen);
+    comprlen = lzf_compress(s, len, out, outlen);//使用lzf压缩
     if (comprlen == 0) {
         zfree(out);
         return 0;
@@ -406,11 +407,15 @@ err:
 
 /* Save a string object as [len][data] on disk. If the object is a string
  * representation of an integer value we try to save it in a special form */
+ /*
+ 将字符串对象保存为[len][data]在磁盘上。如果对象是一个字符串
+ 表示一个整数值，我们试图保存它在一个特殊的形式
+ */
 ssize_t rdbSaveRawString(rio *rdb, unsigned char *s, size_t len) {
     int enclen;
     ssize_t n, nwritten = 0;
 
-    /* Try integer encoding */
+    /* 尝试整数编码 */
     if (len <= 11) {
         unsigned char buf[5];
         if ((enclen = rdbTryIntegerEncoding((char*)s,len,buf)) > 0) {
@@ -421,7 +426,7 @@ ssize_t rdbSaveRawString(rio *rdb, unsigned char *s, size_t len) {
 
     /* Try LZF compression - under 20 bytes it's unable to compress even
      * aaaaaaaaaaaaaaaaaa so skip it */
-    if (server.rdb_compression && len > 20) {
+    if (server.rdb_compression && len > 20) {//开启压缩模式并且字节小于20
         n = rdbSaveLzfStringObject(rdb,s,len);
         if (n == -1) return -1;
         if (n > 0) return n;
