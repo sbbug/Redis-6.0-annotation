@@ -221,12 +221,12 @@ unsigned char *zipmapSet(unsigned char *zm, unsigned char *key, unsigned int kle
     p = zipmapLookupRaw(zm,key,klen,&zmlen);//搜索key是否存在
     if (p == NULL) {
         /* Key not found: enlarge */
-        zm = zipmapResize(zm, zmlen+reqlen);//key未找到，进行扩容
+        zm = zipmapResize(zm, zmlen+reqlen);//key未找到，需要添加元素，因此进行扩容
         p = zm+zmlen-1;//
         zmlen = zmlen+reqlen;
 
         /* Increase zipmap length (this is an insert) */
-        if (zm[0] < ZIPMAP_BIGLEN) zm[0]++;//增加长度？为什么此时增加长度
+        if (zm[0] < ZIPMAP_BIGLEN) zm[0]++;//如果总数小于254，那么++
     } else {
         /* key存在。新值是否有足够的空间? */
         /* Compute the total length: */
@@ -237,7 +237,7 @@ unsigned char *zipmapSet(unsigned char *zm, unsigned char *key, unsigned int kle
              * it can be resized. Then, move the tail backwards so this
              * pair fits at the current position. */
             offset = p-zm;
-            zm = zipmapResize(zm, zmlen-freelen+reqlen);//库哦哦让
+            zm = zipmapResize(zm, zmlen-freelen+reqlen);//进行扩容
             p = zm+offset;
 
             /* The +1 in the number of bytes to be moved is caused by the
@@ -351,7 +351,7 @@ int zipmapExists(unsigned char *zm, unsigned char *key, unsigned int klen) {
 /* Return the number of entries inside a zipmap */
 unsigned int zipmapLen(unsigned char *zm) {
     unsigned int len = 0;
-    if (zm[0] < ZIPMAP_BIGLEN) {
+    if (zm[0] < ZIPMAP_BIGLEN) {//如果总长度小于254,那么直接获取，否则遍历一遍
         len = zm[0];
     } else {
         unsigned char *p = zipmapRewind(zm);
