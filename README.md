@@ -84,3 +84,8 @@ Redis Sentinel sentinel.c
 + pqsort.c 排序算法类 
 + rio.c redis定义的一个I/O类 
 + syncio.c 用于同步Socket和文件I/O操作
+
+    
+    
+    
+        
