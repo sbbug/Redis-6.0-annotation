@@ -1,11 +1,11 @@
 
-Redis里的事件
+## Redis里的事件
 
     （1）文件事件：客户端与服务器的socket连接，读命令，写命令都是文件事件。redis服务器是单线程，采用I/O多路复用来处理多个客户端的请求。
-    （2）时间事件：周期性地执行一些操作。
+    （2）时间事件：处理一些需要定时执行和周期性执行的操作。
 
 
-文件事件、
+#### 文件事件、
 
         typedef struct aeFileEvent {//定义文件事件结构体 文件事件主要是网络I/O
             int mask; /* one of AE_(READABLE|WRITABLE|BARRIER) */
@@ -14,7 +14,7 @@ Redis里的事件
             void *clientData;
         } aeFileEvent;
         
-时间事件、
+#### 时间事件、
 
         /* 时间事件结构 */
         typedef struct aeTimeEvent {//定义时间事件结构体，时间事件主要是指后台处理发生的事件
@@ -29,7 +29,7 @@ Redis里的事件
         } aeTimeEvent;
 
 
-事件处理器、
+#### 事件处理器、
 
         /* State of an event based program */
         typedef struct aeEventLoop {//事件处理器
@@ -47,9 +47,9 @@ Redis里的事件
             int flags;
         } aeEventLoop;
         为什么时间事件基于链表组织的，而文件事件基于数组组织的。
-        从数组和链表各种的特点出发进行回答。
+        将时间事件、文件事件的特点和数组和链表各自的特点出发进行回答。
         
-事件处理器的处理流程、
+#### 事件处理器的处理流程、
 
     void aeMain(aeEventLoop *eventLoop) {
         eventLoop->stop = 0;
@@ -60,3 +60,10 @@ Redis里的事件
             aeProcessEvents(eventLoop, AE_ALL_EVENTS|AE_CALL_AFTER_SLEEP);
         }
     }
+#### Redis事件处理结构图
+###### 文件事件处理结构图
+![网路IO事件处理结构](../images/fileEvent.png)
+
+![网路IO事件处理流程](../images/fileEventProcess.png)
+## 参考
+    https://juejin.im/post/5d4c3a5df265da03934bcbe8

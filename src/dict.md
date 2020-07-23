@@ -1,5 +1,5 @@
 
-字典中的node节点:
+#### 字典中的node节点:
      
      typedef struct dictEntry {//定义字典所用到的k-v结构体
         void *key;
@@ -11,7 +11,7 @@
         } v;
         struct dictEntry *next;//指向下一个节点
     } dictEntry;
-字典中的公共方法:
+#### 字典中的公共方法:
      
     typedef struct dictType {//字典操作的公共方法
         uint64_t (*hashFunction)(const void *key);//根据关键字计算哈希值
@@ -22,7 +22,7 @@
         void (*valDestructor)(void *privdata, void *obj);//销毁value
     } dictType;
     
-字典中的table数据结构:
+#### 字典中的table数据结构:
 
     typedef struct dictht {//用于存储table的数据结构
         dictEntry **table;//指向指针的指针
@@ -31,7 +31,7 @@
         unsigned long used;
     } dictht;
     
-字典数据结构:
+#### 字典数据结构:
 
     typedef struct dict {
         dictType *type;//指向公共方法区
@@ -41,7 +41,7 @@
         unsigned long iterators; //当前字典的迭代器数量
     } dict;
     
-字典迭代器结构:
+#### 字典迭代器结构:
 
     typedef struct dictIterator {
         dict *d;//指向字典对象
@@ -52,7 +52,7 @@
         long long fingerprint;
     } dictIterator;
     
-dict的渐进式扩容:
+#### dict的渐进式扩容:
     dict字典为了方便扩容，内部结构定义了两个字典
     
     typedef struct dict {
@@ -62,12 +62,14 @@ dict的渐进式扩容:
     } dict;
     
     
-    扩容的方式:
+###### 单步rehash:
         哈希表在进行扩容时，并不是一次性将哈希节点直接扩容到指定位置，而是采用
         渐进式方法进行，每次执行一个其它操作，均会判断当前是否开启了rehash模式
         如果开启了rehash模式，那么进行单步扩容。
-        关于每次哈希表进行扩容时，所需要扩容的大小。首先rehash触发的条件:
+        关于每次哈希表进行扩容时，所需要扩容的大小。
+###### 单步rehash触发的条件:
         static int _dictExpandIfNeeded(dict *d)通过该方法来进行判断，Redis的DB是否需要
         进行rehash.
-        
+
+#### dict收缩机制
     

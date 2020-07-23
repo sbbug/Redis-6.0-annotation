@@ -6,6 +6,21 @@
     expire key seconds
     这两个命令非原子性，因此不安全的。如果设置setnx后，后端崩溃，那么将出现死锁问题。
     
+    需要使用Lua脚本实现:
+        public boolean tryLock_with_lua(String key, String UniqueId, int seconds) {
+            String lua_scripts = "if redis.call('setnx',KEYS[1],ARGV[1]) == 1 then" +
+                    "redis.call('expire',KEYS[1],ARGV[2]) return 1 else return 0 end";
+            List<String> keys = new ArrayList<>();
+            List<String> values = new ArrayList<>();
+            keys.add(key);
+            values.add(UniqueId);
+            values.add(String.valueOf(seconds));
+            Object result = jedis.eval(lua_scripts, keys, values);
+            //判断是否成功
+            return result.equals(1L);
+        }
+
+    
 #### 基于set key value EX PX NX XX 的命令
     value可以标记操作者的唯一性
     EX seconds设置键的过期时间为秒
@@ -15,12 +30,18 @@
     设置具有过期时间的唯一key
     set k 100 EX 10 NX //设置k为100，且存活时间为10s 并且唯一。
     
+    加锁代码:
+        public boolean tryLock_with_set(String key, String UniqueId, int seconds) {
+            return "OK".equals(jedis.set(key, UniqueId, "NX", "EX", seconds));
+        }
+
+    
     使用Lua脚本释放锁:
-    if redis.call("get",KEYS[1]) == ARGV[1] then
-        return redis.call("del",KEYS[1])
-    else
-        return 0
-    end
+        if redis.call("get",KEYS[1]) == ARGV[1] then
+            return redis.call("del",KEYS[1])
+        else
+            return 0
+        end
     使用这种方式释放锁可以避免删除别的客户端获取成功的锁
     
 #### 单点问题

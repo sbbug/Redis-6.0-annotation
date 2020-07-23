@@ -1,8 +1,8 @@
 
-maxmemory、maxmemory-policy参数:
-如果redis配置了maxmemory和maxmemory-policy策略，则当redis内存数据达到maxmemory时，
-会根据maxmemory-policy配置来淘汰内存数据，以避免OOM。
-redis提供了以下6种淘汰策略：
+#### maxmemory、maxmemory-policy参数:
+    如果redis配置了maxmemory和maxmemory-policy策略，则当redis内存数据达到maxmemory时，
+    会根据maxmemory-policy配置来淘汰内存数据，以避免OOM。
+#### 6种淘汰策略：
 
         1，noeviction：不执行任何淘汰策略，当达到内存限制的时候客户端执行命令会报错。
         2，allkeys-lru：从所有数据范围内查找到最近最少使用的数据进行淘汰，直到有足够的内存来存放新数据。
@@ -13,22 +13,19 @@ redis提供了以下6种淘汰策略：
         7, volatile-lfu	在设置了过期时间的键中，使用近似的LFU算法淘汰使用频率比较低的键。
         8，allkeys-lfu	使用近似的LFU算法淘汰整个数据库的键。
         
-size_t
+       
         
-        C/C++语言中预定义的数据类型
-        typedef  unsigned long size_t;
-        
-LFU算法(Least Frequently Used)
+#### LFU算法(Least Frequently Used)
         
         如果一个数据在最近一段时间很少被访问到，那么可以认为在将来它被访问的可能性也很小。
         因此，当空间满时，最小频率访问的数据最先被淘汰。
         
-LRU算法(The Least Recently Used)
+#### LRU算法(The Least Recently Used)
 
       如果一个数据在最近一段时间没有被访问到，那么可以认为在将来它被访问的可能性也很小。
       因此，当空间满时，最久没有访问的数据最先被置换（淘汰）。
 
-LFU与LRU区别:
+#### LFU与LRU的区别:
 
       提到缓存，有两点是必须要考虑的：
      （1）缓存数据和目标数据的一致性问题。
@@ -42,7 +39,7 @@ LFU与LRU区别:
          即根据使用次数的差异来决定。而LRU是根据使用时间的差异来决定的。
          
 
-数据淘汰方法触发时机:
+#### 数据淘汰方法触发时机:
        
         在server.c文件中进行触发。
         if (server.maxmemory && !server.lua_timedout) {
@@ -73,25 +70,19 @@ LFU与LRU区别:
         }
       }
 
-缓存池结构：
+#### 缓存池结构：
     
         struct evictionPoolEntry {
-        //对象空闲时间,距离上次使用的时间间隔
-        unsigned long long idle;    /* Object idle time (inverse frequency for LFU) */
-        sds key;                    /* Key name. */
-        sds cached;                 /* Cached SDS object for key name. */
-        //数据库的id
-        int dbid;                   /* Key DB number. */
+            //对象空闲时间,距离上次使用的时间间隔
+            unsigned long long idle;    /* Object idle time (inverse frequency for LFU) */
+            sds key;                    /* Key name. */
+            sds cached;                 /* Cached SDS object for key name. */
+            //数据库的id
+            int dbid;                   /* Key DB number. */
         };
         
-C方法:
-        
-     C 库函数 void *memmove(void *str1, const void *str2, size_t n) 从 str2 复制 n 个字符到 str1，
-     但是在重叠内存块这方面，memmove() 是比 memcpy() 更安全的方法。
-     如果目标区域和源区域有重叠的话，memmove() 能够保证源串在被覆盖之前将重叠区域的字节拷贝到目标区域中，
-     复制后源区域的内容会被更改。如果目标区域与源区域没有重叠，则和 memcpy() 函数功能相同。
 
-LFU算法的具体实现:
+#### LFU算法的具体实现:
     
      为什么会出现LFU算法呢，考虑到LRU算法缺点，LRU算法只会把最近没有访问的key替换掉，但是这样有个坏处，只考虑
      了最近未使用的key,但没有考虑key的访问频率。因此在做替换时，需要把key的访问频率一起考虑进来。
@@ -105,7 +96,7 @@ LFU算法的具体实现:
         只增加计数器并不能体现这种趋势。
      解决办法:
         第一个问题很好解决，可以借鉴LRU实现的经验，维护一个待淘汰key的pool。
-        第二个问题的解决办法是，记录key最后一个被访问的时间，然后随着时间推移，降低计数器。
+        第二个问题的解决办法是，记录key最后一个被访问的时间，然后随着时间推移，降低计数器数量。
         
         第二个问题的解决办法是通过redisobj结构体实现的
         redis基类对象如下:
@@ -148,9 +139,7 @@ LFU算法的具体实现:
             return 65535-ldt+now;
         }
 
-
-
-LRU算法的具体实现:
+#### LRU算法的具体实现:
     
     Redis作者使用了一个近似算法来实现LRU.
     
@@ -181,8 +170,20 @@ LRU算法的具体实现:
     就把它添加到pool里面去。这样一来，每次移除的Key并不仅仅是随机选择的N个Key里面最大的，
     而且还是pool里面idle time最大的，并且：pool 里面的Key是经过多轮比较筛选的，
     它的idle time 在概率上比随机获取的Key的idle time要大，可以这么理解：pool 里面的Key 保留了"历史经验信息"。 
-    
-参考:
+
+## 补充:
+#### C方法:
+        
+     C 库函数 void *memmove(void *str1, const void *str2, size_t n) 从 str2 复制 n 个字符到 str1，
+     但是在重叠内存块这方面，memmove() 是比 memcpy() 更安全的方法。
+     如果目标区域和源区域有重叠的话，memmove() 能够保证源串在被覆盖之前将重叠区域的字节拷贝到目标区域中，
+     复制后源区域的内容会被更改。如果目标区域与源区域没有重叠，则和 memcpy() 函数功能相同。
+     
+     size_t 
+     C/C++语言中预定义的数据类型
+     typedef  unsigned long size_t;
+
+## 参考:
 
     https://www.cnblogs.com/Jackeyzhe/p/12616624.html
     https://www.jianshu.com/p/0dd701d1442d
