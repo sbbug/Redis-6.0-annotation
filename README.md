@@ -2,6 +2,8 @@
 This is the Chinese annotation of redis-6.0
 going
 
+## Redis is named REmote DIctionary Server
+
 第一阶段
 阅读Redis的数据结构部分，基本位于如下文件中： 
 + 内存分配 zmalloc.c和zmalloc.h 

@@ -1,12 +1,12 @@
 
-ziplist原理:
+## ziplist原理:
 
      ziplist是一个特殊编码的双链表，它是被设计节约内存空间而产生的,
      它支持字符串和整型数字，整型数字存储时是实际的整数，不是字符数组。
      ziplist可以在列表两端进行push与pop操作. 但是，因为每个操作都需要对ziplist重新分配
      内存使用，实际的复杂性是相关的ziplist使用的内存量。
      
-ziplist整体结构:
+## ziplist整体结构:
 
 ![ziplist结构](../images/ziplist.png)
 
@@ -16,7 +16,7 @@ ziplist整体结构:
      entry: 节点
      zlend: 值为0xFF，用于标记ziplist的结尾
 
-节点entry的布局:
+## 节点entry的布局:
     
      每个节点由三部分组成：prevlength、encoding、data
      

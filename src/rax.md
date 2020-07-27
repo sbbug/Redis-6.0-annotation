@@ -1,4 +1,4 @@
-rax(基数树)
+## rax(基数树)
     Rax 是 Redis 内部比较特殊的一个数据结构，它是一个有序字典树 (基数树 Radix Tree)，
     按照 key 的字典序排列，支持快速地定位、插入和删除操作;
     它是一种基于存储空间优化的前缀树数据结构;
@@ -10,7 +10,7 @@ rax(基数树)
     
 ![rdb文件结构](../images/rax_compress.png)
 
-小记:
+## 小记:
     typedef struct raxNode {
     //是否有key,如果无key是根节点
     uint32_t iskey:1; //位域，冒号:实际需要使用的位数    

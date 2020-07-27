@@ -1,19 +1,21 @@
 
-Redis集群结构描述:
+#### Redis集群结构描述:
 
     Redis中存在多个master，每个master又可以有多个slave，现假设有集群中有9个节点，3个master，
     每个master节点又有2个slave，那么它的结构可以表示如图:
         
-![redis-cluster集群集群结构图](../images/redis-cluster.png)
+#### ![redis-cluster集群集群结构图](../images/redis-cluster.png)
 
-Redis集群与raft协议的区别:
+#### Redis集群与raft协议的区别:
 
    1.Redis集群中有多个master,每个master有多个slave节点，master节点负责写，slave节点负责读
      因此Redis集群没有中心节点，是多个master并存。master节点之间通过ping pong meet等命令保持联系
+   
    2.raft协议中节点存在三种状态，分别是follower、leader、candidate。其中leader和follower是同时存在。当集群
      中任意一个节点竞选超时后，变会转换为candidate,主动发起投票，其它节点响应进行投票。
+   
    3.raft协议中leader与follower节点如何保持数据一致性的。
-关结构体信息:
+#### 关结构体信息:
     
     //节点报告故障情况
     typedef struct clusterNodeFailReport {
@@ -105,7 +107,7 @@ Redis集群与raft协议的区别:
           强制其他节点更新相关 slots 的负责节点为自己。
 
     
-相关方法:
+#### 相关方法:
         
         strrchr:
         C 库函数 char *strrchr(const char *str, int c) 在参数 str 所指向的字符串中搜索最后一次出现字符 c（一个无符号字符）的位置。
@@ -127,7 +129,7 @@ Redis集群与raft协议的区别:
         clusterMsg *hdr = (clusterMsg*) buf;
         
         
-故障检测：
+#### 故障检测：
         
         PFAIL 标记
         集群中每个节点都会定期向其他节点发送 PING 消息，以此来检测对方是否在线，
@@ -136,13 +138,13 @@ Redis集群与raft协议的区别:
 
         FAIL 标记
         
-Redis中的BitMap
+##### Redis中的BitMap
         就是通过一个bit位来表示某个元素对应的值或者状态,其中的key就是对应元素本身。
         我们知道8个bit可以组成一个Byte，所以bitmap本身会极大的节省储存空间。
                 
 
-主从复制模式、哨兵模式、集群模式区别：
-主从复制模式实现原理步骤:
+#### 主从复制模式、哨兵模式、集群模式区别：
+###### 主从复制模式实现原理步骤:
     1、从服务器向主服务器发送PSYNC命令
     2、主服务器收到PSYNC命令后，执行bgsave命令，将当前的内存数据保存到RDB文件；同时将当前以后的所有写命令
        保存到缓冲区
@@ -151,17 +153,18 @@ Redis中的BitMap
     
 ![redis-cluster集群集群结构图](../images/master-slave.png)
 
-哨兵模式、
+#### 哨兵模式、
     为了解决主从复制模式宕机问题，Redis实现了哨兵模式，由一个或多个Sentinel去监听任意多个主服务以及主服务器下的所有从服务器，
     并在被监视的主服务器进入下线状态时，自动将下线的主服务器属下的某个从服务器升级为新的主服务器，
     然后由新的主服务器代替已经下线的从服务器，并且Sentinel可以互相监视。
     
 ![redis-cluster集群集群结构图](../images/s1.png)
 ![redis-cluster集群集群结构图](../images/s2.png)
+    
     当有多个Sentinel，在进行监视和转移主从服务器时，
     Sentinel之间会自己首先进行选举，选出Sentinel的leader来进行执行任务。
     
-    哨兵模式具体工作机制:
+####哨兵模式具体工作机制:
     建立连接----
     哨兵启动后，会与要监控的master建立两条连接：
     1、一条连接用来订阅master的sentinel:hello频道与获取其他监控该master的哨兵节点信息
@@ -214,20 +217,20 @@ Redis中的BitMap
     
         
     
-集群模式、
+#### 集群模式、
      
-    集群模式优点----
+###### 集群模式优点----
     哨兵模式解决了主从复制不能自动故障转移，达不到高可用的问题，但还是存在难以在线扩容，
     Redis容量受限于单机配置的问题。Cluster模式实现了Redis的分布式存储，
     即每台节点存储不同的内容，来解决在线扩容的问题。
     
-    集群模式特点----
+###### 集群模式特点----
     Cluster采用无中心结构,它的特点如下：
     所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽
     节点的fail是通过集群中超过半数的节点检测失效时才生效
     客户端与redis节点直连,不需要中间代理层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可
     
-    集群模式工作机制----
+######集群模式工作机制----
     在Redis的每个节点上，都有一个插槽（slot），取值范围为0-16383
     当我们存取key的时候，Redis会根据CRC16的算法得出一个结果，然后把结果对16384求余数，
     这样每个key都会对应一个编号在0-16383之间的哈希槽，通过这个值，去找到对应的插槽所对应的节点，
@@ -239,7 +242,7 @@ Redis中的BitMap
 
     
 
-    参考:
+####参考:
         https://www.jianshu.com/p/0232236688c1
         https://blog.csdn.net/chen_kkw/article/details/82724330
         https://www.cnblogs.com/java-zhao/p/7105543.html

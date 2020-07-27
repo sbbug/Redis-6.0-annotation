@@ -1,4 +1,4 @@
-redis-check-rdb模块:
+## redis-check-rdb模块:
     与aof模块类似，都是实现对文件的合法性检测。
     
     

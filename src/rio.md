@@ -1,8 +1,8 @@
 
-读写抽象层
+## 读写抽象层
 
 
-_rio结构体
+#### _rio结构体
         
     struct _rio {
    
@@ -53,7 +53,7 @@ _rio结构体
     } io;
 };
 
-相关函数
+#### 相关函数
         
         size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream)
         参数

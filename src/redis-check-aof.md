@@ -1,4 +1,4 @@
-redis-check-aof模块:
+## redis-check-aof模块:
               用来进行日志修复
 
 
@@ -10,9 +10,9 @@ Redis文件结构:
     2) RDB格式的二进制数据段
     3) AOF格式的文本数据段
 
-//宏定义
-#define redis_fstat fstat64
-#define redis_stat stat64
+## 宏定义
+      #define redis_fstat fstat64
+      #define redis_stat stat64
 
 fileno:
     函数名称：fileno（在VC++6.0下为_fileno）
