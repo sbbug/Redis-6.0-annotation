@@ -1,5 +1,5 @@
 
-intset作用:
+## intset作用:
     整数集合，是一个有序的数值数组对象，存储的数值不允许重复。
     集合中可以存储int_64、int_32、int_16等多种类型数据
     
@@ -10,7 +10,7 @@ intset作用:
     2、如果添加数据类型长度小于当前集合类型编码
         直接添加
 
-小计:
+## 小计:
     C 库函数 void *memcpy(void *str1, const void *str2, size_t n) 
     从存储区 str2 复制 n 个字节到存储区 str1。
     
