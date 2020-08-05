@@ -38,7 +38,7 @@
  * word. When the node represents a key inside the radix tree, we write it
  * between [], otherwise it is written between ().
  *
- * This is the vanilla representation:
+ * This is the vanilla representation://没有被压缩
  *
  *              (f) ""
  *                \
@@ -60,7 +60,7 @@
  * and only the link to the node representing the last character node is
  * provided inside the representation. So the above representation is turend
  * into:
- *
+ * //压缩后表示
  *                  ["foo"] ""
  *                     |
  *                  [t   b] "foo"
@@ -96,17 +96,17 @@
 
 #define RAX_NODE_MAX_SIZE ((1<<29)-1)
 typedef struct raxNode {
-    uint32_t iskey:1;     /* Does this node contain a key? */
-    uint32_t isnull:1;    /* Associated value is NULL (don't store it). */
-    uint32_t iscompr:1;   /* Node is compressed. */
-    uint32_t size:29;     /* Number of children, or compressed string len. */
+    uint32_t iskey:1;     /* 此节点是否包含key */
+    uint32_t isnull:1;    /* 暗示value值是否为空 */
+    uint32_t iscompr:1;   /* 是否有前缀压缩，决定了data的存储结构 */
+    uint32_t size:29;     /* 该节点存储的字符个数. */
     /* Data layout is as follows:
      *
      * If node is not compressed we have 'size' bytes, one for each children
      * character, and 'size' raxNode pointers, point to each child node.
      * Note how the character is not stored in the children but in the
      * edge of the parents:
-     *
+     * //没有被压缩
      * [header iscompr=0][abc][a-ptr][b-ptr][c-ptr](value-ptr?)
      *
      * if node is compressed (iscompr bit is 1) the node has 1 children.
@@ -115,7 +115,7 @@ typedef struct raxNode {
      * nodes linked one after the other, for which only the last one in
      * the sequence is actually represented as a node, and pointed to by
      * the current compressed node.
-     *
+     * //如果被压缩了
      * [header iscompr=1][xyz][z-ptr](value-ptr?)
      *
      * Both compressed and not compressed nodes can represent a key
@@ -127,7 +127,7 @@ typedef struct raxNode {
      * children, an additional value pointer is present (as you can see
      * in the representation above as "value-ptr" field).
      */
-    unsigned char data[];
+    unsigned char data[];//所有的信息，包括key value ptr都存储在data里
 } raxNode;
 
 typedef struct rax {//基数树

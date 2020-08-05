@@ -75,7 +75,7 @@
     rax *cgroups;           //消费者组
     } stream;
 
-####### 消费者组结构
+###### 消费者组结构
     typedef struct streamCG {
         streamID last_id;       /* Last delivered (not acknowledged) ID for this
                                    group. Consumers that will just ask for more
@@ -102,6 +102,9 @@
                                    in the "pel" of the conumser group structure
                                    itself, so the value is shared. */
     } streamConsumer;
+
+###### listpack结构
+
 
 ## 参考
     https://cloud.tencent.com/developer/article/1529507

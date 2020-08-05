@@ -4,7 +4,7 @@
     它是一种基于存储空间优化的前缀树数据结构;
     基数树和字典树相类似；但是字典树需要将26个字母全部表示出来；
     最普通表示方法:
-    ![rdb文件结构](../images/raw_rax.png)
+![rdb文件结构](../images/raw_rax.png)
     
     经过压缩后的表示方法:
     
@@ -20,6 +20,12 @@
     uint32_t iscompr:1;   
     uint32_t size:29; 
     //上面四个字段加起来一共使用32位，四个字节
+    
+    //没有被压缩
+    [header iscompr=0][abc][a-ptr][b-ptr][c-ptr](value-ptr?)
+    //如果被压缩了
+    [header iscompr=1][xyz][z-ptr](value-ptr?)
+    
     
     //路由键，子节点、指针等均在这里
     unsigned char data[];//占用0个字节
