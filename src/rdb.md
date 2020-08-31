@@ -68,7 +68,7 @@
     }
   
 ## rdb文件结构:
-     ![rdb文件结构](../images/rdb_file_struct.png)
+![rdb文件结构](../images/rdb_file_struct.png)
      
 ## LZF压缩编码:
      待续
