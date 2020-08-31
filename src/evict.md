@@ -9,7 +9,8 @@
         3，volatile-lru：使用近似的LRU淘汰数据，仅设置过期的键。
         4，allkeys-random：从所有数据范围内随机选择key进行删除。
         5，volatile-random：从设置了过期时间的数据范围内随机选择key进行删除。
-        6，volatile-ttl：删除最接近到期​​时间（较小的TTL）的键。,仅设置过期的键
+        6，volatile-ttl：删除最接近到期​​时间（较小的TTL）的键。,仅设置过期的键。ttl代表key的当前存活时间。将快要
+        死的key直接删除。
         7, volatile-lfu	在设置了过期时间的键中，使用近似的LFU算法淘汰使用频率比较低的键。
         8，allkeys-lfu	使用近似的LFU算法淘汰整个数据库的键。
         
@@ -17,7 +18,8 @@
         
 #### LFU算法(Least Frequently Used)
         
-        如果一个数据在最近一段时间很少被访问到，那么可以认为在将来它被访问的可能性也很小。
+        LFU会为每个key维护一个访问次数的计数器，随着访问次数增多，计数器越来越大，同时随着
+        时间推移，但没有访问时，计数器会逐渐进行衰减。
         因此，当空间满时，最小频率访问的数据最先被淘汰。
         
 #### LRU算法(The Least Recently Used)
@@ -82,6 +84,40 @@
         };
         
 
+
+#### LRU算法的具体实现:
+    
+    Redis作者使用了一个近似算法来实现LRU.
+    
+    最简单实现方法:
+    记录下每个key 最近一次的访问时间（比如unix timestamp），考虑到时间戳越大，说明时间点距离当前越近，因此unix timestamp最小的Key，
+    就是最近未使用的，把这个Key移除。
+    看下来一个HashMap就能搞定。是的，但是首先需要存储每个Key和它的timestamp。
+    其次，还要比较timestamp得出最小值。代价很大，不现实。
+    
+    第二种方法：换个角度，不记录具体的访问时间点(unix timestamp)，而是记录idle time：idle time越小，意味着是最近被访问的。
+    
+![key的访问次数分布](../images/lru.png)
+
+    比如A、B、C、D四个Key，A每5s访问一次，B每2s访问一次，C和D每10s访问一次。
+    （一个波浪号代表1s），从上图中可看出：A的空闲时间是2s，B的idle time是1s，C的idle time是5s，D刚刚访问了所以idle time是0s。
+    
+    为什么不使用双向哈希链表实现呢？
+    这里，用一个双向链表(linkedlist)把所有的Key链表起来，如果一个Key被访问了，将就这个Key移到链表的表头，
+    而要移除Key时，直接从表尾移除。
+    但是在redis中，并没有采用这种方式实现，它嫌LinkedList占用的空间太大了。
+    Redis并不是直接基于字符串、链表、字典等数据结构来实现KV数据库，
+    而是在这些数据结构上创建了一个对象系统Redis Object。在redisObject结构体中定义了一个长度24bit的unsigned类型的字段，
+    用来存储对象最后一次被命令程序访问的时间.
+    
+    最初的具体实现，随机选择3个key,把idle time最大的key删除.这种实现lru的方法简单粗暴，但十分有效。缺点是每次随机选择时
+    没有利用历史信息，需要在当前轮移除key时，利用好上一轮N个key的idle time信息。
+    改进策略，采用缓冲池技术(pooling):
+    当每一轮移除Key时，拿到了这个N个Key的idle time，如果它的idle time比 pool 里面的 Key的idle time还要大，
+    就把它添加到pool里面去。这样一来，每次移除的Key并不仅仅是随机选择的N个Key里面最大的，
+    而且还是pool里面idle time最大的，并且：pool 里面的Key是经过多轮比较筛选的，
+    它的idle time 在概率上比随机获取的Key的idle time要大，可以这么理解：pool 里面的Key 保留了"历史经验信息"。 
+
 #### LFU算法的具体实现:
     
      为什么会出现LFU算法呢，考虑到LRU算法缺点，LRU算法只会把最近没有访问的key替换掉，但是这样有个坏处，只考虑
@@ -96,7 +132,7 @@
         只增加计数器并不能体现这种趋势。
      解决办法:
         第一个问题很好解决，可以借鉴LRU实现的经验，维护一个待淘汰key的pool。
-        第二个问题的解决办法是，记录key最后一个被访问的时间，然后随着时间推移，降低计数器数量。
+        第二个问题的解决办法是，记录key最后一个被访问的时间，然后随着时间推移，降低计数器数量。计数器数量随时间衰减。
         
         第二个问题的解决办法是通过redisobj结构体实现的
         redis基类对象如下:
@@ -139,37 +175,6 @@
             return 65535-ldt+now;
         }
 
-#### LRU算法的具体实现:
-    
-    Redis作者使用了一个近似算法来实现LRU.
-    
-    最简单实现方法:
-    记录下每个key 最近一次的访问时间（比如unix timestamp），unix timestamp最小的Key，就是最近未使用的，把这个Key移除。
-    看下来一个HashMap就能搞定。是的，但是首先需要存储每个Key和它的timestamp。
-    其次，还要比较timestamp得出最小值。代价很大，不现实。
-    
-    第二种方法：换个角度，不记录具体的访问时间点(unix timestamp)，而是记录idle time：idle time越小，意味着是最近被访问的。
-    
-![key的访问次数分布](../images/lru.png)
-
-    比如A、B、C、D四个Key，A每5s访问一次，B每2s访问一次，C和D每10s访问一次。
-    （一个波浪号代表1s），从上图中可看出：A的空闲时间是2s，B的idle time是1s，C的idle time是5s，D刚刚访问了所以idle time是0s。
-    
-    为什么不使用双向哈希链表实现呢？
-    这里，用一个双向链表(linkedlist)把所有的Key链表起来，如果一个Key被访问了，将就这个Key移到链表的表头，
-    而要移除Key时，直接从表尾移除。
-    但是在redis中，并没有采用这种方式实现，它嫌LinkedList占用的空间太大了。
-    Redis并不是直接基于字符串、链表、字典等数据结构来实现KV数据库，
-    而是在这些数据结构上创建了一个对象系统Redis Object。在redisObject结构体中定义了一个长度24bit的unsigned类型的字段，
-    用来存储对象最后一次被命令程序访问的时间.
-    
-    最初的具体实现，随机选择3个key,把idle time最大的key删除.这种实现lru的方法简单粗暴，但十分有效。缺点是每次随机选择时
-    没有利用历史信息，需要在当前轮移除key时，利用好上一轮N个key的idle time信息
-    改进策略，采用缓冲池技术(pooling):
-    当每一轮移除Key时，拿到了这个N个Key的idle time，如果它的idle time比 pool 里面的 Key的idle time还要大，
-    就把它添加到pool里面去。这样一来，每次移除的Key并不仅仅是随机选择的N个Key里面最大的，
-    而且还是pool里面idle time最大的，并且：pool 里面的Key是经过多轮比较筛选的，
-    它的idle time 在概率上比随机获取的Key的idle time要大，可以这么理解：pool 里面的Key 保留了"历史经验信息"。 
 
 ## 补充:
 #### C方法:

@@ -1395,6 +1395,7 @@ werr:
  * log Redis uses variadic commands when possible, such as RPUSH, SADD
  * and ZADD. However at max AOF_REWRITE_ITEMS_PER_CMD items per time
  * are inserted using a single command. */
+ //将Redis写命令写入到指定文件中
 int rewriteAppendOnlyFile(char *filename) {
     rio aof;
     FILE *fp;
@@ -1537,9 +1538,9 @@ int aofCreatePipes(void) {
     int fds[6] = {-1, -1, -1, -1, -1, -1};
     int j;
 
-    if (pipe(fds) == -1) goto error; /* parent -> children data. */
-    if (pipe(fds+2) == -1) goto error; /* children -> parent ack. */
-    if (pipe(fds+4) == -1) goto error; /* parent -> children ack. */
+    if (pipe(fds) == -1) goto error; //数据管道，发送父进程增加的AOF写命令到子进程
+    if (pipe(fds+2) == -1) goto error; //子进程向父进程发起确认成功的管道
+    if (pipe(fds+4) == -1) goto error; //父进程向子进程回复确认的管道
     /* Parent -> children data is non blocking. */
     if (anetNonBlock(NULL,fds[0]) != ANET_OK) goto error;
     if (anetNonBlock(NULL,fds[1]) != ANET_OK) goto error;

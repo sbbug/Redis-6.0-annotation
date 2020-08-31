@@ -132,7 +132,7 @@ typedef struct clusterNode {
     mstime_t voted_time;     /* 最后一次为某个从节点投票时间 */
     mstime_t repl_offset_time;  /* Unix time we received offset for this node */
     mstime_t orphaned_time;     /* Starting time of orphaned master condition */
-    long long repl_offset;      /* Last known repl offset for this node. */
+    long long repl_offset;      /* 主从同步时数据同步的偏移量. */
     char ip[NET_IP_STR_LEN];  /* 此节点最新的已知的IP地址 */
     int port;                   /* 节点最新客户端端口 */
     int cport;                  /* 节点最新集群端口. */
