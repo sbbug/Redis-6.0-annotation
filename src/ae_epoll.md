@@ -3,10 +3,12 @@
 
 
 #### 创建epoll实例
+    //创建一个事件空间
     int epoll_create(int flags);
     创建一个epoll的句柄，size用来告诉内核这个监听的数目最大值。
     
 #### epoll管理事件
+    //该方法主要用来实现事件的注册功能
     int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
     输入:
         epfd是epoll的句柄，即epoll_create的返回值；
@@ -25,3 +27,9 @@
         events : 储存事件的数组首地址
         maxevents : 最大事件的数量
         timeout : 等待的最长时间
+        
+    Linux中epoll首先使用epoll_create方法开辟一个事件空间，用来存储注册的事件。然后当有新的事件到达后，
+    使用epoll_ctl方法将事件注册到内核空间中，在内核空间中，所有的文件描述符是以红黑树的结构组织存储。
+    所有的文件描述符只从用户态拷贝到内核态一次，不会出现重复拷贝，这也是epoll性能高的原因。同时epoll机制在
+    内核态创建一个链表，用来存储就绪的文件描述符事件，每次只需要将已经就绪的事件通过epoll_wait方法拷贝到用户态
+    即可，不需要拷贝所有的文件描述。

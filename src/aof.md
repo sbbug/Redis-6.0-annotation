@@ -1,7 +1,8 @@
 
 ## aof持久化原理
    
-   AOF类似MySQL中redo log。
+   AOF类似MySQL中redo log。MySQL中使用redo log实现对所有写命令的持久化，
+   redo log主要用来对数据做恢复使用。
 
 #### 持久化机制
 
@@ -69,7 +70,7 @@
         int fds[6] = {-1, -1, -1, -1, -1, -1};
         int j;
     
-        if (pipe(fds) == -1) goto error; //数据管道，发送父进程增加的AOF写命令到子进程。父进程会向子进程不断发送缓存中的数据，
+        if (pipe(fds) == -1) goto error; //数据管道，发送父进程新增加的AOF写命令到子进程。父进程会向子进程不断发送缓存中的数据，
         子进程定时读取缓存中的数据。
         if (pipe(fds+2) == -1) goto error; //子进程向父进程发起确认成功的ACK,这里是"!"信号。
         if (pipe(fds+4) == -1) goto error; //父进程向子进程回复确认的管道

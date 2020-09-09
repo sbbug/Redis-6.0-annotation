@@ -142,7 +142,7 @@ void bioInit(void) {
         bio_threads[j] = thread;
     }
 }
-
+//根据type创建指定类型的后台作业
 void bioCreateBackgroundJob(int type, void *arg1, void *arg2, void *arg3) {
     struct bio_job *job = zmalloc(sizeof(*job));//分配内存
 
@@ -150,11 +150,11 @@ void bioCreateBackgroundJob(int type, void *arg1, void *arg2, void *arg3) {
     job->arg1 = arg1;
     job->arg2 = arg2;
     job->arg3 = arg3;
-    pthread_mutex_lock(&bio_mutex[type]);//
-    listAddNodeTail(bio_jobs[type],job);
-    bio_pending[type]++;
-    pthread_cond_signal(&bio_newjob_cond[type]);
-    pthread_mutex_unlock(&bio_mutex[type]);
+    pthread_mutex_lock(&bio_mutex[type]);//获取对应线程下的锁
+    listAddNodeTail(bio_jobs[type],job);//添加任务到对应的任务队列
+    bio_pending[type]++;//对应的任务队列的任务数量+1
+    pthread_cond_signal(&bio_newjob_cond[type]);//给条件变量发送信号，唤醒其它线程
+    pthread_mutex_unlock(&bio_mutex[type]);//释放锁
 }
 
 void *bioProcessBackgroundJobs(void *arg) {
@@ -186,7 +186,7 @@ void *bioProcessBackgroundJobs(void *arg) {
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
-    pthread_mutex_lock(&bio_mutex[type]);//尝试获取互斥锁
+    pthread_mutex_lock(&bio_mutex[type]);//尝试获取对应类型的互斥锁
     /* Block SIGALRM so we are sure that only the main thread will
      * receive the watchdog signal. */
     sigemptyset(&sigset);
@@ -195,27 +195,27 @@ void *bioProcessBackgroundJobs(void *arg) {
         serverLog(LL_WARNING,
             "Warning: can't mask SIGALRM in bio.c thread: %s", strerror(errno));
 
+    //处理任务队列任务
     while(1) {
         listNode *ln;
 
-        /* The loop always starts with the lock hold. */
+        //如果任务队列等于0，阻塞当前线程，放入条件队列，等待被唤醒
         if (listLength(bio_jobs[type]) == 0) {
             pthread_cond_wait(&bio_newjob_cond[type],&bio_mutex[type]);
             continue;
         }
-        /* Pop the job from the queue. */
+        //获取队列第一个任务,此时只是获取，并没有出队
         ln = listFirst(bio_jobs[type]);
         job = ln->value;
-        /* It is now possible to unlock the background system as we know have
-         * a stand alone job structure to process.*/
-        pthread_mutex_unlock(&bio_mutex[type]);
+        /* 释放当前任务类型对应的锁，让任务队列接收任务入队请求.*/
+        pthread_mutex_unlock(&bio_mutex[type]);//锁要及时释放
 
-        /* Process the job accordingly to its type. */
+        /* 根据任务类型处理相关任务. */
         if (type == BIO_CLOSE_FILE) {
-            close((long)job->arg1);
+            close((long)job->arg1);//关闭文件描述符
         } else if (type == BIO_AOF_FSYNC) {
-            redis_fsync((long)job->arg1);
-        } else if (type == BIO_LAZY_FREE) {
+            redis_fsync((long)job->arg1);//异步落盘AOF文件
+        } else if (type == BIO_LAZY_FREE) {//懒汉式释放内存
             /* What we free changes depending on what arguments are set:
              * arg1 -> free the object at pointer.
              * arg2 & arg3 -> free two dictionaries (a Redis DB).
@@ -233,9 +233,9 @@ void *bioProcessBackgroundJobs(void *arg) {
 
         /* Lock again before reiterating the loop, if there are no longer
          * jobs to process we'll block again in pthread_cond_wait(). */
-        pthread_mutex_lock(&bio_mutex[type]);
-        listDelNode(bio_jobs[type],ln);
-        bio_pending[type]--;
+        pthread_mutex_lock(&bio_mutex[type]);//获取对应任务类型的锁
+        listDelNode(bio_jobs[type],ln);//删除已经处理完成的任务
+        bio_pending[type]--;//任务数量--
 
         /* Unblock threads blocked on bioWaitStepOfType() if any. */
         pthread_cond_broadcast(&bio_step_cond[type]);
@@ -263,13 +263,13 @@ unsigned long long bioPendingJobsOfType(int type) {
  */
 unsigned long long bioWaitStepOfType(int type) {
     unsigned long long val;
-    pthread_mutex_lock(&bio_mutex[type]);
-    val = bio_pending[type];
+    pthread_mutex_lock(&bio_mutex[type]);//加锁
+    val = bio_pending[type];//获取挂起线程数量
     if (val != 0) {
-        pthread_cond_wait(&bio_step_cond[type],&bio_mutex[type]);
+        pthread_cond_wait(&bio_step_cond[type],&bio_mutex[type]);//阻塞当前线程
         val = bio_pending[type];
     }
-    pthread_mutex_unlock(&bio_mutex[type]);
+    pthread_mutex_unlock(&bio_mutex[type]);//释放锁
     return val;
 }
 
