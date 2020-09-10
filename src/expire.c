@@ -196,7 +196,7 @@ void activeExpireCycle(int type) {
         /* Expired and checked in a single loop. */
         unsigned long expired, sampled;
 
-        redisDb *db = server.db+(current_db % server.dbnum);
+        redisDb *db = server.db+(current_db % server.dbnum);//获取当前DB
 
         /* Increment the DB now so we are sure if we run out of time
          * in the current DB we'll restart from the next. This allows to

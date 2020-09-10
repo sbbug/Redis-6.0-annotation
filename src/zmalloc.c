@@ -36,6 +36,7 @@
  * for instance to free results obtained by backtrace_symbols(). We need
  * to define this function before including zmalloc.h that may shadow the
  * free implementation if we use jemalloc or another non standard allocator. */
+ //内存释放
 void zlibc_free(void *ptr) {
     free(ptr);
 }
@@ -46,10 +47,11 @@ void zlibc_free(void *ptr) {
 #include "zmalloc.h"
 #include "atomicvar.h"
 
-#ifdef HAVE_MALLOC_SIZE
-#define PREFIX_SIZE (0)
-#else
-#if defined(__sun) || defined(__sparc) || defined(__sparc__)
+//宏编程
+#ifdef HAVE_MALLOC_SIZE //如果定义了HAVE_MALLOC_SIZE，
+#define PREFIX_SIZE (0) //那么定义PREFIX_SIZE
+#else //否则
+#if defined(__sun) || defined(__sparc) || defined(__sparc__) //defined(x) 判断x宏是否被定义过
 #define PREFIX_SIZE (sizeof(long long))
 #else
 #define PREFIX_SIZE (sizeof(size_t))
@@ -71,18 +73,20 @@ void zlibc_free(void *ptr) {
 #define dallocx(ptr,flags) je_dallocx(ptr,flags)
 #endif
 
+//定义一个宏，指向while循环
 #define update_zmalloc_stat_alloc(__n) do { \
     size_t _n = (__n); \
     if (_n&(sizeof(long)-1)) _n += sizeof(long)-(_n&(sizeof(long)-1)); \
     atomicIncr(used_memory,__n); \
 } while(0)
-
+//同理
 #define update_zmalloc_stat_free(__n) do { \
     size_t _n = (__n); \
     if (_n&(sizeof(long)-1)) _n += sizeof(long)-(_n&(sizeof(long)-1)); \
     atomicDecr(used_memory,__n); \
 } while(0)
 
+//静态变量，只被初始化一次
 static size_t used_memory = 0;
 pthread_mutex_t used_memory_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -95,10 +99,11 @@ static void zmalloc_default_oom(size_t size) {
 
 static void (*zmalloc_oom_handler)(size_t) = zmalloc_default_oom;
 
+//根据大小分配内存
 void *zmalloc(size_t size) {
     void *ptr = malloc(size+PREFIX_SIZE);
 
-    if (!ptr) zmalloc_oom_handler(size);
+    if (!ptr) zmalloc_oom_handler(size);//如果分配失败
 #ifdef HAVE_MALLOC_SIZE
     update_zmalloc_stat_alloc(zmalloc_size(ptr));
     return ptr;
@@ -191,6 +196,7 @@ size_t zmalloc_usable(void *ptr) {
 }
 #endif
 
+//内存释放
 void zfree(void *ptr) {
 #ifndef HAVE_MALLOC_SIZE
     void *realptr;
@@ -200,9 +206,9 @@ void zfree(void *ptr) {
     if (ptr == NULL) return;
 #ifdef HAVE_MALLOC_SIZE
     update_zmalloc_stat_free(zmalloc_size(ptr));
-    free(ptr);
+    free(ptr);//释放内存
 #else
-    realptr = (char*)ptr-PREFIX_SIZE;
+    realptr = (char*)ptr-PREFIX_SIZE;//指针移动
     oldsize = *((size_t*)realptr);
     update_zmalloc_stat_free(oldsize+PREFIX_SIZE);
     free(realptr);

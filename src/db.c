@@ -1218,7 +1218,7 @@ void setExpire(client *c, redisDb *db, robj *key, long long when) {
 
 /* Return the expire time of the specified key, or -1 if no expire
  * is associated with this key (i.e. the key is non volatile) */
- //获取指定key的生命周期
+ //获取指定key的过期时间点
 long long getExpire(redisDb *db, robj *key) {
     dictEntry *de;//获取当前key对应的entry
 

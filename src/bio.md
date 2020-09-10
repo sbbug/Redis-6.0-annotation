@@ -1,17 +1,17 @@
 
 ## bio模块
 
-   bio模块主要用来在后台执行相关的任务。
-   bio后台主要有三种任务类型：
-   //后台有三种类型作业
-    #define BIO_CLOSE_FILE    0 //关闭文件
-    #define BIO_AOF_FSYNC     1 //AOF缓存异步存储
-    #define BIO_LAZY_FREE     2 //懒汉式释放内存
-    #define BIO_NUM_OPS       3 //一共三种类型的任务
-   
-   关闭文件描述符很耗时间吗，为什么需要异步执行？
-   close()方法属于系统调用函数，系统调用函数非常耗时，因此最好采用异步的方式关闭
-   文件描述符。
+       bio模块主要用来在后台执行相关的任务。
+       bio后台主要有三种任务类型：
+       //后台有三种类型作业
+        #define BIO_CLOSE_FILE    0 //关闭文件
+        #define BIO_AOF_FSYNC     1 //AOF缓存异步存储
+        #define BIO_LAZY_FREE     2 //懒汉式释放内存
+        #define BIO_NUM_OPS       3 //一共三种类型的任务
+       
+       关闭文件描述符很耗时间吗，为什么需要异步执行？
+       close()方法属于系统调用函数，系统调用函数非常耗时，因此最好采用异步的方式关闭
+       文件描述符。
 
 ## Redis6.0新特性引入多线程
     
