@@ -1,5 +1,5 @@
 
-
+# 学习编程思想，先从优秀的源码阅读开始
 ## Redis-6.0-annotation
 This is the Chinese annotation of redis-6.0
 going
