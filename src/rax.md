@@ -10,6 +10,13 @@
     
 ![rdb文件结构](../images/rax_compress.png)
 
+## 基数树的优势
+   
+   1、快速检索单词，查找某个前缀单词开头的有哪些。
+   2、可以存储具有相同公共前缀的名称，比如Redis中stream下的消息
+   3、内存中使用rax树，可以大大节省内存空间，提升查询速度
+    
+
 ## 小记:
     typedef struct raxNode {
     //是否有key,如果无key是根节点
