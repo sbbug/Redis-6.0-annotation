@@ -51,35 +51,7 @@
           </mappings>
         </serverdata>
       </paths>
-      <paths name="new_server">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="shw@192.168.0.116:22">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="shw@192.168.0.116:22 (1)">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="shw@192.168.0.134:22">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="shw@192.168.0.134:22 (1)">
+      <paths name="ftp">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
@@ -100,14 +72,14 @@
           </mappings>
         </serverdata>
       </paths>
-      <paths name="zh_ftp">
+      <paths name="websocketUI">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="zhixing">
+      <paths name="zh_ftp">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />

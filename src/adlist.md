@@ -23,3 +23,5 @@
         int (*match)(void *ptr, void *key);
         unsigned long len;//长度
     } list;
+    
+    使用迭代器访问的好处可以屏蔽内部实现细节，对用户是透明的。

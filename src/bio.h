@@ -40,7 +40,7 @@ void bioKillThreads(void);
 
 //后台有三种类型作业
 /* Background job opcodes */
-#define BIO_CLOSE_FILE    0 /* Deferred close(2) syscall. *///关闭文件
+#define BIO_CLOSE_FILE    0 /* Deferred close(2) syscall. *///关闭文件，关闭文件也是耗时？
 #define BIO_AOF_FSYNC     1 /* Deferred AOF fsync. *///AOF缓存异步存储
 #define BIO_LAZY_FREE     2 /* Deferred objects freeing. *///懒汉式释放内存
 #define BIO_NUM_OPS       3
