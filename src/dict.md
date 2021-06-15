@@ -25,7 +25,7 @@
 #### 字典中的table数据结构:
 
     typedef struct dictht {//用于存储table的数据结构
-        dictEntry **table;//指向指针的指针
+        dictEntry **table;//指向指针的指针 二级指针，指向一个数组
         unsigned long size;//大小
         unsigned long sizemask;
         unsigned long used;
