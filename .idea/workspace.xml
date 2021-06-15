@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="BRANCH:master" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </select>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a3bb1a4a-c8b0-4dd8-bc61-9fb70c602c10" name="Default Changelist" comment="polish rax.md">
+      <change beforePath="$PROJECT_DIR$/src/dict.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/dict.md" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1eTuB4HcY9in2y96gk8KVRArwHH" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../kafka" />
+    <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a3bb1a4a-c8b0-4dd8-bc61-9fb70c602c10" name="Default Changelist" comment="" />
+      <created>1594357764485</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1594357764485</updated>
+      <workItem from="1594357769481" duration="6321000" />
+      <workItem from="1594996311248" duration="1714000" />
+      <workItem from="1595341040347" duration="7646000" />
+      <workItem from="1595946833475" duration="12843000" />
+      <workItem from="1596203355414" duration="9865000" />
+      <workItem from="1596334168423" duration="1199000" />
+      <workItem from="1596612679891" duration="9389000" />
+      <workItem from="1596899886581" duration="2090000" />
+      <workItem from="1597450690693" duration="1732000" />
+      <workItem from="1598000170447" duration="1511000" />
+      <workItem from="1598453177871" duration="13812000" />
+      <workItem from="1599522461363" duration="2190000" />
+      <workItem from="1599556020439" duration="11614000" />
+      <workItem from="1600052745536" duration="6224000" />
+      <workItem from="1600499652850" duration="3574000" />
+      <workItem from="1600504910394" duration="1891000" />
+      <workItem from="1601045350943" duration="1572000" />
+      <workItem from="1601696371585" duration="609000" />
+      <workItem from="1602256913139" duration="33496000" />
+      <workItem from="1604476953231" duration="32000" />
+      <workItem from="1605671370023" duration="8000" />
+      <workItem from="1606202396993" duration="476000" />
+    </task>
+    <task id="LOCAL-00001" summary="polish some annotations">
+      <created>1595858455792</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1595858455792</updated>
+    </task>
+    <task id="LOCAL-00002" summary="add  stream.md">
+      <created>1596035931309</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1596035931309</updated>
+    </task>
+    <task id="LOCAL-00003" summary="polish  ziplist quicklist listpack">
+      <created>1596613025830</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1596613025830</updated>
+    </task>
+    <task id="LOCAL-00004" summary="polish">
+      <created>1598832203080</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1598832203080</updated>
+    </task>
+    <task id="LOCAL-00005" summary="polish">
+      <created>1598832770603</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1598832770603</updated>
+    </task>
+    <task id="LOCAL-00006" summary="polish">
+      <created>1599729491473</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1599729491474</updated>
+    </task>
+    <task id="LOCAL-00007" summary="add function pointer">
+      <created>1600397280448</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1600397280449</updated>
+    </task>
+    <task id="LOCAL-00008" summary="hi redis">
+      <created>1600494498079</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1600494498079</updated>
+    </task>
+    <task id="LOCAL-00009" summary="polish rax.md">
+      <created>1600504577548</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1600504577548</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="polish some annotations" />
+    <MESSAGE value="add  stream.md" />
+    <MESSAGE value="polish  ziplist quicklist listpack" />
+    <MESSAGE value="polish" />
+    <MESSAGE value="add function pointer" />
+    <MESSAGE value="hi redis" />
+    <MESSAGE value="polish rax.md" />
+    <option name="LAST_COMMIT_MESSAGE" value="polish rax.md" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="104" y="34" key="DiffContextDialog" timestamp="1600351843757">
+      <screen x="0" y="0" width="1440" height="920" />
+    </state>
+    <state x="104" y="34" key="DiffContextDialog/0.0.1440.920@0.0.1440.920" timestamp="1600351843757" />
+    <state x="501" y="216" key="FileChooserDialogImpl" timestamp="1601106434562">
+      <screen x="0" y="0" width="1440" height="920" />
+    </state>
+    <state x="501" y="216" key="FileChooserDialogImpl/0.0.1440.920@0.0.1440.920" timestamp="1601106434562" />
+    <state x="93" y="79" key="MergeDialog" timestamp="1598832274843">
+      <screen x="0" y="0" width="1440" height="920" />
+    </state>
+    <state x="93" y="79" key="MergeDialog/0.0.1440.920@0.0.1440.920" timestamp="1598832274843" />
+    <state x="123" y="239" key="MultipleFileMergeDialog" timestamp="1598832274856">
+      <screen x="0" y="0" width="1440" height="920" />
+    </state>
+    <state x="123" y="239" key="MultipleFileMergeDialog/0.0.1440.920@0.0.1440.920" timestamp="1598832274856" />
+    <state x="129" y="97" key="SettingsEditor" timestamp="1600505594267">
+      <screen x="0" y="0" width="1440" height="920" />
+    </state>
+    <state x="129" y="97" key="SettingsEditor/0.0.1440.920@0.0.1440.920" timestamp="1600505594267" />
+    <state x="313" y="194" key="Vcs.Push.Dialog.v2" timestamp="1601045572969">
+      <screen x="0" y="0" width="1440" height="920" />
+    </state>
+    <state x="313" y="194" key="Vcs.Push.Dialog.v2/0.0.1440.920@0.0.1440.920" timestamp="1601045572969" />
+    <state x="518" y="374" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1598832188183">
+      <screen x="0" y="0" width="1440" height="920" />
+    </state>
+    <state x="518" y="374" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1440.920@0.0.1440.920" timestamp="1598832188183" />
+    <state x="263" y="54" width="850" height="804" key="find.popup" timestamp="1599574661372">
+      <screen x="0" y="0" width="1440" height="920" />
+    </state>
+    <state x="263" y="54" width="850" height="804" key="find.popup/0.0.1440.920@0.0.1440.920" timestamp="1599574661372" />
+    <state x="403" y="248" key="git4idea.merge.GitPullDialog" timestamp="1600504539580">
+      <screen x="0" y="0" width="1440" height="920" />
+    </state>
+    <state x="403" y="248" key="git4idea.merge.GitPullDialog/0.0.1440.920@0.0.1440.920" timestamp="1600504539580" />
+    <state x="383" y="195" width="672" height="678" key="search.everywhere.popup" timestamp="1599525019298">
+      <screen x="0" y="0" width="1440" height="920" />
+    </state>
+    <state x="383" y="195" width="672" height="678" key="search.everywhere.popup/0.0.1440.920@0.0.1440.920" timestamp="1599525019298" />
+  </component>
+</project>
