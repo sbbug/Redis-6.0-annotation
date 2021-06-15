@@ -82,35 +82,37 @@ typedef struct bkinfo {
 /* Block a client for the specific operation type. Once the CLIENT_BLOCKED
  * flag is set client query buffer is not longer processed, but accumulated,
  * and will be processed when the client is unblocked. */
+ //将当前客户端进行阻塞，同时停止处理客户端查询缓存
 void blockClient(client *c, int btype) {
     c->flags |= CLIENT_BLOCKED;
-    c->btype = btype;
-    server.blocked_clients++;
-    server.blocked_clients_by_type[btype]++;
+    c->btype = btype;//阻塞类型
+    server.blocked_clients++;//阻塞客户端++
+    server.blocked_clients_by_type[btype]++;//阻塞客户端的类型++
     addClientToTimeoutTable(c);
 }
 
 /* This function is called in the beforeSleep() function of the event loop
  * in order to process the pending input buffer of clients that were
  * unblocked after a blocking operation. */
+ //对非阻塞客户端进行处理
 void processUnblockedClients(void) {
     listNode *ln;
     client *c;
 
-    while (listLength(server.unblocked_clients)) {
-        ln = listFirst(server.unblocked_clients);
+    while (listLength(server.unblocked_clients)) {//非阻塞客户端链表长度
+        ln = listFirst(server.unblocked_clients);//获取头节点
         serverAssert(ln != NULL);
-        c = ln->value;
-        listDelNode(server.unblocked_clients,ln);
+        c = ln->value;//获取客户端
+        listDelNode(server.unblocked_clients,ln);//删除当前节点
         c->flags &= ~CLIENT_UNBLOCKED;
 
         /* Process remaining data in the input buffer, unless the client
          * is blocked again. Actually processInputBuffer() checks that the
          * client is not blocked before to proceed, but things may change and
          * the code is conceptually more correct this way. */
-        if (!(c->flags & CLIENT_BLOCKED)) {
-            if (c->querybuf && sdslen(c->querybuf) > 0) {
-                processInputBuffer(c);
+        if (!(c->flags & CLIENT_BLOCKED)) {//如果当前客户端非阻塞
+            if (c->querybuf && sdslen(c->querybuf) > 0) {//客户单查询缓存非空
+                processInputBuffer(c);//执行查询缓存中数据
             }
         }
     }
@@ -135,7 +137,7 @@ void processUnblockedClients(void) {
 void queueClientForReprocessing(client *c) {
     /* The client may already be into the unblocked list because of a previous
      * blocking operation, don't add back it into the list multiple times. */
-    if (!(c->flags & CLIENT_UNBLOCKED)) {
+    if (!(c->flags & CLIENT_UNBLOCKED)) {//防止将客户端添加多次
         c->flags |= CLIENT_UNBLOCKED;
         listAddNodeTail(server.unblocked_clients,c);
     }
@@ -143,6 +145,7 @@ void queueClientForReprocessing(client *c) {
 
 /* Unblock a client calling the right function depending on the kind
  * of operation the client is blocking for. */
+ //解除对某个客户端的阻塞
 void unblockClient(client *c) {
     if (c->btype == BLOCKED_LIST ||
         c->btype == BLOCKED_ZSET ||
@@ -162,7 +165,7 @@ void unblockClient(client *c) {
     server.blocked_clients_by_type[c->btype]--;
     c->flags &= ~CLIENT_BLOCKED;
     c->btype = BLOCKED_NONE;
-    removeClientFromTimeoutTable(c);
+    removeClientFromTimeoutTable(c);//删除客户端
     queueClientForReprocessing(c);
 }
 
@@ -194,15 +197,15 @@ void disconnectAllBlockedClients(void) {
     listNode *ln;
     listIter li;
 
-    listRewind(server.clients,&li);
+    listRewind(server.clients,&li);//获取客户单迭代器
     while((ln = listNext(&li))) {
         client *c = listNodeValue(ln);
 
-        if (c->flags & CLIENT_BLOCKED) {
+        if (c->flags & CLIENT_BLOCKED) {//客户端处于阻塞状态
             addReplySds(c,sdsnew(
                 "-UNBLOCKED force unblock from blocking operation, "
                 "instance state changed (master -> replica?)\r\n"));
-            unblockClient(c);
+            unblockClient(c);//释放客户端，变成非阻塞
             c->flags |= CLIENT_CLOSE_AFTER_REPLY;
         }
     }
