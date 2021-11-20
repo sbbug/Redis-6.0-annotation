@@ -81,4 +81,6 @@
         #endif
     }
 
-
+#### Redis的QPS于Mysql的QPS对比？
+    
+    Redis数据库QPS大约10w，MySQL数据库QPS大约5000。
