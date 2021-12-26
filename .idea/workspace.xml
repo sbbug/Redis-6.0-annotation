@@ -25,8 +25,9 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a3bb1a4a-c8b0-4dd8-bc61-9fb70c602c10" name="Default Changelist" comment="polish rax.md">
-      <change beforePath="$PROJECT_DIR$/src/dict.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/dict.md" afterDir="false" />
+    <list default="true" id="a3bb1a4a-c8b0-4dd8-bc61-9fb70c602c10" name="Default Changelist" comment="proxy">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trick/Questions.md" beforeDir="false" afterPath="$PROJECT_DIR$/trick/Questions.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,9 +50,12 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../kafka" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -84,6 +88,11 @@
       <workItem from="1604476953231" duration="32000" />
       <workItem from="1605671370023" duration="8000" />
       <workItem from="1606202396993" duration="476000" />
+      <workItem from="1637386208202" duration="4870000" />
+      <workItem from="1637982899514" duration="1184000" />
+      <workItem from="1639235778165" duration="679000" />
+      <workItem from="1640272662943" duration="685000" />
+      <workItem from="1640312909704" duration="2394000" />
     </task>
     <task id="LOCAL-00001" summary="polish some annotations">
       <created>1595858455792</created>
@@ -148,11 +157,32 @@
       <option name="project" value="LOCAL" />
       <updated>1600504577548</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="add">
+      <created>1637386359355</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1637386359355</updated>
+    </task>
+    <task id="LOCAL-00011" summary="proxy">
+      <created>1637387086396</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1637387086396</updated>
+    </task>
+    <task id="LOCAL-00012" summary="proxy">
+      <created>1637387168572</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1637387168572</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="2" />
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -187,48 +217,8 @@
     <MESSAGE value="add function pointer" />
     <MESSAGE value="hi redis" />
     <MESSAGE value="polish rax.md" />
-    <option name="LAST_COMMIT_MESSAGE" value="polish rax.md" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="104" y="34" key="DiffContextDialog" timestamp="1600351843757">
-      <screen x="0" y="0" width="1440" height="920" />
-    </state>
-    <state x="104" y="34" key="DiffContextDialog/0.0.1440.920@0.0.1440.920" timestamp="1600351843757" />
-    <state x="501" y="216" key="FileChooserDialogImpl" timestamp="1601106434562">
-      <screen x="0" y="0" width="1440" height="920" />
-    </state>
-    <state x="501" y="216" key="FileChooserDialogImpl/0.0.1440.920@0.0.1440.920" timestamp="1601106434562" />
-    <state x="93" y="79" key="MergeDialog" timestamp="1598832274843">
-      <screen x="0" y="0" width="1440" height="920" />
-    </state>
-    <state x="93" y="79" key="MergeDialog/0.0.1440.920@0.0.1440.920" timestamp="1598832274843" />
-    <state x="123" y="239" key="MultipleFileMergeDialog" timestamp="1598832274856">
-      <screen x="0" y="0" width="1440" height="920" />
-    </state>
-    <state x="123" y="239" key="MultipleFileMergeDialog/0.0.1440.920@0.0.1440.920" timestamp="1598832274856" />
-    <state x="129" y="97" key="SettingsEditor" timestamp="1600505594267">
-      <screen x="0" y="0" width="1440" height="920" />
-    </state>
-    <state x="129" y="97" key="SettingsEditor/0.0.1440.920@0.0.1440.920" timestamp="1600505594267" />
-    <state x="313" y="194" key="Vcs.Push.Dialog.v2" timestamp="1601045572969">
-      <screen x="0" y="0" width="1440" height="920" />
-    </state>
-    <state x="313" y="194" key="Vcs.Push.Dialog.v2/0.0.1440.920@0.0.1440.920" timestamp="1601045572969" />
-    <state x="518" y="374" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1598832188183">
-      <screen x="0" y="0" width="1440" height="920" />
-    </state>
-    <state x="518" y="374" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1440.920@0.0.1440.920" timestamp="1598832188183" />
-    <state x="263" y="54" width="850" height="804" key="find.popup" timestamp="1599574661372">
-      <screen x="0" y="0" width="1440" height="920" />
-    </state>
-    <state x="263" y="54" width="850" height="804" key="find.popup/0.0.1440.920@0.0.1440.920" timestamp="1599574661372" />
-    <state x="403" y="248" key="git4idea.merge.GitPullDialog" timestamp="1600504539580">
-      <screen x="0" y="0" width="1440" height="920" />
-    </state>
-    <state x="403" y="248" key="git4idea.merge.GitPullDialog/0.0.1440.920@0.0.1440.920" timestamp="1600504539580" />
-    <state x="383" y="195" width="672" height="678" key="search.everywhere.popup" timestamp="1599525019298">
-      <screen x="0" y="0" width="1440" height="920" />
-    </state>
-    <state x="383" y="195" width="672" height="678" key="search.everywhere.popup/0.0.1440.920@0.0.1440.920" timestamp="1599525019298" />
+    <MESSAGE value="add" />
+    <MESSAGE value="proxy" />
+    <option name="LAST_COMMIT_MESSAGE" value="proxy" />
   </component>
 </project>

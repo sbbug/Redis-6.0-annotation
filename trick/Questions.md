@@ -84,3 +84,12 @@
 #### Redis的QPS于Mysql的QPS对比？
     
     Redis数据库QPS大约10w，MySQL数据库QPS大约5000。
+
+#### master节点宕机，slave升级master，期间会影响其它请求吗
+    客户端请求超时后，会有超时重试次数。
+    具体参考 https://www.cnblogs.com/aquester/p/11428025.html。
+    造成master节点宕机的才是根因。
+    master节点宕机后，slave升级为master期间，可能会造成数据丢失。
+
+#### 客户端网络连接生命周期
+    首先通过TCP协议建立socket连接，服务端保存socket连接符，并监听连接是否有执行命令等请求。

@@ -89,6 +89,8 @@ Redis Sentinel sentinel.c
 + rio.c redis定义的一个I/O类 
 + syncio.c 用于同步Socket和文件I/O操作
 
+
+    http://oldblog.antirez.com/post/redis-as-LRU-cache.html
     
     
     
