@@ -93,3 +93,22 @@
 
 #### 客户端网络连接生命周期
     首先通过TCP协议建立socket连接，服务端保存socket连接符，并监听连接是否有执行命令等请求。
+
+#### client中reqtype字段含义
+    Redis本身支持telnet请求与redis-cli请求，二者分别是PROTO_REQ_INLINE、PROTO_REQ_MULTIBULK。
+
+#### Redis通信协议
+
+    Redis 协议将传输的结构数据分为 5 种最小单元类型，单元结束时统一加上回车换行符号\r\n。
+    1、单行字符 以 + 符号开头。
+    2、多行字符 以 $ 符号开头，后跟字符长度。
+    3、整数值 以 : 符号开头，后跟整数的字符串形式。
+    4、错误消息 以 - 符号开头。
+    5、数组 以 * 号开头，后跟数组的长度。   
+     
+    "*2\r\n$3\r\nget\r\n$4\r\nname\r\n"
+     *2代表数组有两个元素，分别是get和name,\r\n该表示单元结束
+     $3代表后面又三个字符，为get $4代表后面有四个字符，为name。
+   参考
+        
+     https://www.cnblogs.com/wuwuyong/p/11757845.html

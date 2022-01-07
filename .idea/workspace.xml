@@ -27,6 +27,8 @@
   <component name="ChangeListManager">
     <list default="true" id="a3bb1a4a-c8b0-4dd8-bc61-9fb70c602c10" name="Default Changelist" comment="proxy">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ae.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/ae.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ae_epoll.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/ae_epoll.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/trick/Questions.md" beforeDir="false" afterPath="$PROJECT_DIR$/trick/Questions.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -36,6 +38,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/.gitignore" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="1eTuB4HcY9in2y96gk8KVRArwHH" />
   <component name="ProjectLevelVcsManager">
@@ -51,7 +56,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../tinyCompiler/tiny-compiler" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
   </component>
@@ -92,7 +97,11 @@
       <workItem from="1637982899514" duration="1184000" />
       <workItem from="1639235778165" duration="679000" />
       <workItem from="1640272662943" duration="685000" />
-      <workItem from="1640312909704" duration="2394000" />
+      <workItem from="1640312909704" duration="4993000" />
+      <workItem from="1640704319016" duration="1225000" />
+      <workItem from="1640783048415" duration="598000" />
+      <workItem from="1641043436695" duration="1180000" />
+      <workItem from="1641305978679" duration="6066000" />
     </task>
     <task id="LOCAL-00001" summary="polish some annotations">
       <created>1595858455792</created>

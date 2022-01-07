@@ -1,8 +1,9 @@
 
 ## Redis里的事件
 
-    （1）文件事件：客户端与服务器的socket连接，读命令，写命令都是文件事件。redis服务器是单线程，采用I/O多路复用来处理多个客户端的请求。
-    （2）时间事件：处理一些需要定时执行和周期性执行的操作。
+    （1）文件事件(fileEvent)，客户端与服务器的socket连接，读命令，写命令都是文件事件。redis服务器是单线程，采用I/O多路复用来处理多个客户端的请求。
+    （2）时间事件(TimeEvent)，处理一些需要定时执行和周期性执行的操作。
+     (3)就绪事件(firedEvent)，文件事件描述符中有读或者写事件就绪的描述符。就绪事件一般是文件事件的子集。
 
 
 #### 文件事件、
@@ -56,7 +57,8 @@
         while (!eventLoop->stop) {//单线程处理
             if (eventLoop->beforesleep != NULL)
                 eventLoop->beforesleep(eventLoop);
-            //先处理文件事件，再出来时间事件
+            //先处理文件事件，再处理时间事件
+            // 文件事件主要是上游请求，需要及时处理并响应
             aeProcessEvents(eventLoop, AE_ALL_EVENTS|AE_CALL_AFTER_SLEEP);
         }
     }
