@@ -24,6 +24,15 @@
     4、end大小1个字节，结尾符，值255
     
     从结构我们可以发现，zipmap就是一个key-value连续存放的内存区域，只不过其中加入了长度作为辅助索引
+
+#### 关于压缩
+
+    Redis是基于内存存储的，内存大小寸土寸金，因此把数据结构存储压缩到极致很有必要。
+    比如zipmap存储map的结构如下：
+    zlen keylen key valuelen free value ...  end
+    zlen代表map中k-v个数，keylen代表key字符长度以及后面是key，valuelen代表value值大小，
+    free又是什么呢？表示当时value空间还剩的字节个数，主要考虑到value经常动态修改，比如刚开始30个
+    字符，set key name 后，可能改成10个了，那么free=20，标识内存剩余量。
     
     
     

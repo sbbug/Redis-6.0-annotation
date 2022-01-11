@@ -85,11 +85,40 @@
     
     Redis数据库QPS大约10w，MySQL数据库QPS大约5000。
 
+#### master节点为什么要开启持久化机制
+    
+    考虑一种场景，master节点由于本次磁盘等其它人工原因，被自动重启了，如果此时没有开启持久化，
+    master节点数据的empty data set，其它slave节点会自动同步master节点空数据，导致从节点
+    数据被刷掉。
+
+###### master节点宕机或重启，不会fail over吗？
+
+    即使存在哨兵集群检测master健康状态，但考虑一种场景，哨兵没来及检测，master已经重启成功了。
+
 #### master节点宕机，slave升级master，期间会影响其它请求吗
+###### 此时触发了fail-over机制。
     客户端请求超时后，会有超时重试次数。
     具体参考 https://www.cnblogs.com/aquester/p/11428025.html。
     造成master节点宕机的才是根因。
-    master节点宕机后，slave升级为master期间，可能会造成数据丢失。
+    
+###### 故障自动转移的后果：
+    master节点宕机后，slave升级为master期间，可能会造成数据丢失。具体表现为，宕机的master节点会
+    以slave节点身份重启，重启后会自动和新的master重连，同步新的master节点数据，因此slave(原先master）
+    节点为同步的那一小段数据会丢失。
+
+###### 为什么会有数据丢失呢？
+    master与slave数据同步是异步实现的，比如master收到set name key命令，成功后会直接返回客户端OK，而不用关心
+    set name key数据是否同步到slave节点。因此在master节点收到set key name ,还未及时同步slave节点时，突然宕机
+    了，此时set name key产生的数据丢失。
+
+###### 那么如何避免数据丢失呢？
+    完全避免数据丢失成本比较大，但可以降低数据丢失量。
+    min-slaves-to-write 1
+    min-slaves-max-lag 10
+    通过配置上述两个参数：只有有一个slave节点数据主从同步不能超过10s。一旦所有slave主从同步超过10s,master不再
+    接收请求，选出新的master节点。
+    同时做好监控配置，实时监控主从节点同步的延迟时间，一旦有异常及时报警。
+      
 
 #### 客户端网络连接生命周期
     首先通过TCP协议建立socket连接，服务端保存socket连接符，并监听连接是否有执行命令等请求。
@@ -112,3 +141,18 @@
    参考
         
      https://www.cnblogs.com/wuwuyong/p/11757845.html
+
+#### Redis主从复制如何实现的
+
+###### Re-ID与offset
+    首先Redis master instance会有两个字段Replication ID,offset。
+    Re-ID用来标识当前master节点，offset表示当前有多少字节数据。master通过这两个字段和slave节点进行数据
+    增量同步的。offset增长取决master节点本身。
+
+###### 数据同步过程
+    1、slave节点连接master节点，使用PSYNC命令发送他们持有的Re-ID(old master)和offset字段。
+    2、master节点收到这两个字段后，判断Re-ID是否和当前一样，如果不一样，则会发生全量复制，具体过程
+    为，fork一个进程生成一个内存快照的RDB文件，同时缓存客户端所有的写命令。RDB文件生成后，master将
+    RDB文件与缓存写命令发给slave节点，供其load到内存。
+    3、如果Re-ID字段相同，则发生增量复制。将slave的offset于master的offset做差计算，增量发送数据。
+    
