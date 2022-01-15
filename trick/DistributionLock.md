@@ -21,7 +21,7 @@
         }
     Lua脚本执行属于原子性操作，可有效避免死锁问题。
     
-#### 基于set key value EX PX NX XX 的命令
+#### 基于set key value EX/PX NX/XX 的命令
     value可以标记操作者的唯一性
     EX seconds设置键的过期时间为秒
     PX millisecounds 设置键的过期时间为毫秒
