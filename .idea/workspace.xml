@@ -26,8 +26,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a3bb1a4a-c8b0-4dd8-bc61-9fb70c602c10" name="Default Changelist" comment="proxy">
-      <change afterPath="$PROJECT_DIR$/trick/opt.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/adlist.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/adlist.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ae.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/ae.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/evict.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/evict.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/t_zset.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/t_zset.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trick/opt.md" beforeDir="false" afterPath="$PROJECT_DIR$/trick/opt.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +108,10 @@
       <workItem from="1642163343559" duration="39000" />
       <workItem from="1642169154904" duration="598000" />
       <workItem from="1642220400069" duration="1434000" />
-      <workItem from="1642245835070" duration="1155000" />
+      <workItem from="1642245835070" duration="2035000" />
+      <workItem from="1642400999099" duration="1182000" />
+      <workItem from="1642429565565" duration="1481000" />
+      <workItem from="1642675416733" duration="7959000" />
     </task>
     <task id="LOCAL-00001" summary="polish some annotations">
       <created>1595858455792</created>

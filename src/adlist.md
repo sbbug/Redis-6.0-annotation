@@ -7,7 +7,7 @@
     typedef struct listNode {//双向链表的节点
         struct listNode *prev;
         struct listNode *next;
-        void *value;
+        void *value; // value使用void类型指针，可以指向任意类型数据
     } listNode;
     
     typedef struct listIter {//链表迭代器

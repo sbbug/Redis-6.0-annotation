@@ -2,6 +2,10 @@
 #### maxmemory、maxmemory-policy参数:
     如果redis配置了maxmemory和maxmemory-policy策略，则当redis内存数据达到maxmemory时，
     会根据maxmemory-policy配置来淘汰内存数据，以避免OOM。
+    
+    这个有点类似JVM中的垃圾回收机制，只不过垃圾一般是年轻代分区满了以后进行回收。考虑到实际使用中Redis内存会配置监控报警机制，
+    因此很少会出现OOM问题。但有时也不可避免。
+
 #### 6种淘汰策略：
 
         1，noeviction：不执行任何淘汰策略，当达到内存限制的时候客户端执行命令会报错。

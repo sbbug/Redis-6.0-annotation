@@ -88,7 +88,7 @@ typedef struct aeTimeEvent {//定义时间事件结构体，时间事件主要�
 } aeTimeEvent;
 
 /* A fired event */
-typedef struct aeFiredEvent {
+typedef struct aeFiredEvent { // 已经就绪的文件事件
     int fd;//已出现的事件的文件号对应的事件描述在aeEventLoop.events[]中的下标
     int mask;//文件事件类型 AE_WRITABLE||AE_READABLE
 } aeFiredEvent;
