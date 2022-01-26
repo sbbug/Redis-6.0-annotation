@@ -9,22 +9,22 @@ going
 第一阶段
 阅读Redis的数据结构部分，基本位于如下文件中： 
 + 内存分配 zmalloc.c和zmalloc.h 
-+ 动态字符串 sds.h和sds.c 
-+ 双端链表 adlist.c和adlist.h 
-+ 字典 dict.h和dict.c 
++ 动态字符串 sds.h和sds.c [sds](./src/sds.md)
++ 双端链表 adlist.c和adlist.h [adlist](./src/adlist.md)
++ 字典 dict.h和dict.c [dict](./src/dict.md)
 + 跳跃表 server.h文件里面关于zskiplist结构和zskiplistNode结构，以及t_zset.c中所有zsl开头的函数，比如 zslCreate、zslInsert、zslDeleteNode等等。 
 + 日志类型 hyperloglog.c 中的 hllhdr 结构， 以及所有以 hll 开头的函数
 
 第二阶段
 熟悉Redis的内存编码结构 
-+ 整数集合数据结构 intset.h和intset.c 
-+ 压缩列表数据结构 ziplist.h和ziplist.c
++ 整数集合数据结构 intset.h和intset.c [intset](./src/inset.md)
++ 压缩列表数据结构 ziplist.h和ziplist.c [ziplist](./src/ziplist.md)
 
 第三阶段
 熟悉Redis数据类型的实现 
-+ 对象系统 object.c 
++ 对象系统 object.c [object](./src/object.md)
 + 字符串键 t_string.c 
-+ 列表建 t_list.c 
++ 列表建 t_list.c [t_list](./src/t_list.md)
 + 散列键 t_hash.c 
 + 集合键 t_set.c 
 + 有序集合键 t_zset.c中除 zsl 开头的函数之外的所有函数 
@@ -34,8 +34,8 @@ going
 熟悉Redis数据库的实现 
 + 数据库实现 redis.h文件中的redisDb结构，以及db.c文件 
 + 通知功能 notify.c 
-+ RDB持久化 rdb.c 
-+ AOF持久化 aof.c
++ RDB持久化 rdb.c [rdb](./src/rdb.md)
++ AOF持久化 aof.c [aof](./src/aof.md)
 
 以及一些独立功能模块的实现 
 + 发布和订阅 redis.h文件的pubsubPattern结构，以及pubsub.c文件 
@@ -46,7 +46,7 @@ going
 + 事件处理模块 ae.c/ae_epoll.c/ae_evport.c/ae_kqueue.c/ae_select.c 
 + 网路链接库 anet.c和networking.c 
 + 服务器端 redis.c 
-+ 客户端 redis-cli.c
++ 客户端 redis-cli.c [redis-cli](./src/redis-cli.md)
 
 这个时候可以阅读下面的独立功能模块的代码实现 
 + lua脚本 scripting.c 
@@ -63,7 +63,7 @@ Redis Sentinel sentinel.c
 关于测试方面的文件有： 
 + memtest.c 内存检测 
 + redis_benchmark.c 用于redis性能测试的实现。 
-+ redis_check_aof.c 用于更新日志检查的实现。 
++ redis_check_aof.c 用于更新日志检查的实现。 [redis_check_aof](./src/redis-check-aof.md)
 + redis_check_dump.c 用于本地数据库检查的实现。 
 + testhelp.c 一个C风格的小型测试框架。
 
@@ -82,12 +82,12 @@ Redis Sentinel sentinel.c
 + sort.c SORT命令的实现
 
 一些封装类的代码实现： 
-+ bio.c background I/O的意思，开启后台线程用的 
-+ latency.c 延迟类 
++ bio.c background I/O的意思，开启后台线程用的 [bio](./src/bio.md)
++ latency.c 延迟类 [latency](./src/latency.md)
 + migrate.c 命令迁移类，包括命令的还原迁移等 
 + pqsort.c 排序算法类 
-+ rio.c redis定义的一个I/O类 
-+ syncio.c 用于同步Socket和文件I/O操作
++ rio.c redis定义的一个I/O类 [rio](./src/rio.md)
++ syncio.c 用于同步Socket和文件I/O操作 
 
 
 ## 参考
