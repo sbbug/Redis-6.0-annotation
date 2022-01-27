@@ -9,7 +9,7 @@
 ![aof持久化结构图](../images/aof1.png)
     
     1、所有的写命令会追加到 AOF 缓冲中。
-    2、AOF 缓冲区根据对应的策略向硬盘进行同步操作。
+    2、AOF 缓冲区根据对应的策略向硬盘进行同步操作，AOF文件落盘是同步操作，会阻塞请求。
     3、随着 AOF 文件越来越大，需要定期对 AOF 文件进行重写，达到压缩的目的。
     4、当 Redis 重启时，可以加载 AOF 文件进行数据恢复。
 
@@ -89,6 +89,95 @@
         return C_OK;  
         ...           
     }
+    
+    // 具体重写逻辑
+
+      int rewriteAppendOnlyFileRio(rio *aof) {
+         dictIterator *di = NULL;
+         dictEntry *de;
+         size_t processed = 0;
+         int j;
+         long key_count = 0;
+         long long updated_time = 0;
+      
+       for (j = 0; j < server.dbnum; j++) { // 遍历内存字典结构
+           char selectcmd[] = "*2\r\n$6\r\nSELECT\r\n";
+           redisDb *db = server.db+j; // 获取dataset数组
+           dict *d = db->dict; // 拿到字典句柄
+           if (dictSize(d) == 0) continue;
+           di = dictGetSafeIterator(d); // 迭代式获取entry节点
+   
+           /* SELECT the new DB */
+           if (rioWrite(aof,selectcmd,sizeof(selectcmd)-1) == 0) goto werr;
+           if (rioWriteBulkLongLong(aof,j) == 0) goto werr;
+   
+           // 循环迭代每一个entry
+           while((de = dictNext(di)) != NULL) {
+               sds keystr;
+               robj key, *o;
+               long long expiretime;
+   
+               keystr = dictGetKey(de);
+               o = dictGetVal(de);
+               initStaticStringObject(key,keystr);
+   
+               expiretime = getExpire(db,&key);
+   
+               // 保存key-value expire等属性值
+               if (o->type == OBJ_STRING) { // 如果是字符串
+                   // 重构set命令
+                   char cmd[]="*3\r\n$3\r\nSET\r\n";
+                   if (rioWrite(aof,cmd,sizeof(cmd)-1) == 0) goto werr;
+                   // 持久化key-value
+                   if (rioWriteBulkObject(aof,&key) == 0) goto werr;
+                   if (rioWriteBulkObject(aof,o) == 0) goto werr;
+               } else if (o->type == OBJ_LIST) {
+                   if (rewriteListObject(aof,&key,o) == 0) goto werr;
+               } else if (o->type == OBJ_SET) {
+                   if (rewriteSetObject(aof,&key,o) == 0) goto werr;
+               } else if (o->type == OBJ_ZSET) {
+                   if (rewriteSortedSetObject(aof,&key,o) == 0) goto werr;
+               } else if (o->type == OBJ_HASH) {
+                   if (rewriteHashObject(aof,&key,o) == 0) goto werr;
+               } else if (o->type == OBJ_STREAM) {
+                   if (rewriteStreamObject(aof,&key,o) == 0) goto werr;
+               } else if (o->type == OBJ_MODULE) {
+                   if (rewriteModuleObject(aof,&key,o) == 0) goto werr;
+               } else {
+                   serverPanic("Unknown object type");
+               }
+               // 持久化过期时间
+               if (expiretime != -1) {
+                   char cmd[]="*3\r\n$9\r\nPEXPIREAT\r\n";
+                   if (rioWrite(aof,cmd,sizeof(cmd)-1) == 0) goto werr;
+                   if (rioWriteBulkObject(aof,&key) == 0) goto werr;
+                   if (rioWriteBulkLongLong(aof,expiretime) == 0) goto werr;
+               }
+               // 从父进程重写命令缓冲区读取新加入的命令，通过管道读取
+               if (aof->processed_bytes > processed+AOF_READ_DIFF_INTERVAL_BYTES) {
+                   processed = aof->processed_bytes;
+                   aofReadDiffFromParent();
+               }
+   
+               /* Update info every 1 second (approximately).
+                * in order to avoid calling mstime() on each iteration, we will
+                * check the diff every 1024 keys */
+               if ((key_count++ & 1023) == 0) {
+                   long long now = mstime();
+                   if (now - updated_time >= 1000) {
+                       sendChildInfo(CHILD_INFO_TYPE_CURRENT_INFO, key_count, "AOF rewrite");
+                       updated_time = now;
+                   }
+               }
+           }
+           dictReleaseIterator(di);
+           di = NULL;
+       }
+       return C_OK;
+      werr:
+      if (di) dictReleaseIterator(di);
+      return C_ERR;
+      }
 
 #### IPC管道通信特点
 

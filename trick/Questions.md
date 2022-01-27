@@ -155,4 +155,28 @@
     为，fork一个进程生成一个内存快照的RDB文件，同时缓存客户端所有的写命令。RDB文件生成后，master将
     RDB文件与缓存写命令发给slave节点，供其load到内存。
     3、如果Re-ID字段相同，则发生增量复制。将slave的offset于master的offset做差计算，增量发送数据。
+
+#### Redis持久化方式，AOF和RDB落盘时会阻塞请求吗
+
+##### AOF
+    AOF文件通常会比RDB文件更大。AOF文件落盘时采取的是顺序写方式落盘，因此速度很快，所以落盘过程是阻塞的。
+    AOF落盘时会先将query命令写到AOF缓存区，然后落盘。随着query增多，AOF会对磁盘数据进行重写，重写流程为：
+    父进程会fork一个子进程，子进程读取内存中的dataset数据，进行重写，由于dataset只有key value expire等属性，
+    没有操作命令，redis重写会直接添加上set和expire等命令，即命令重构，实现内存数据到AOF操作格式转换。Redis重写的过程，会有
+    新的请求到达，新的命令也需要写到aof，父进程将重写过程的新请求写到aof重写缓存区，子进程会最大努力的从父进程重写缓存区获取diff命令，写入aof文件。
+    当aof文件写入完成后，子进程会发送一个信号给父进程，父进程此时停止处理请求，将新的aof文件覆盖磁盘旧的aof文件。
+    以上即可完成重写过程。
+
+具体参考[aof.md](../src/aof.md)
+    
+
+##### RDB
+    RDB落盘分为同步和异步，分别对应命令save和bgsave。同步落盘会阻塞请求。异步落盘会fork一个子进程实现。
+    fork一个子进程，子进程读取Redis中的dataset，然后写入临时RDB文件，写完后，覆盖磁盘上旧的RDB。
+    
+    
+    参考：
+        https://redis.io/topics/persistence
+        https://juejin.cn/post/6874169870775386119
+        https://www.cnblogs.com/shoufu/p/14135603.html
     

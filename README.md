@@ -94,7 +94,8 @@ Redis Sentinel sentinel.c
 1、[redis内存淘汰方式](http://oldblog.antirez.com/post/redis-as-LRU-cache.html)
 
 2、[从0到1构建高可用Redis](https://zhaoxiaobin.net/Redis/%E5%A6%82%E4%BD%95%E4%BB%8E0%E5%88%B01%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%A8%B3%E5%AE%9A%E3%80%81%E9%AB%98%E6%80%A7%E8%83%BD%E7%9A%84Redis%E9%9B%86%E7%BE%A4%EF%BC%9F%EF%BC%88%E8%BD%AC%E8%BD%BD%EF%BC%89/)
-    
+
+## 博大精深，每次捋一遍都有不一样的体会哦！！    
     
     
         
