@@ -17,7 +17,7 @@
     typedef struct zskiplist {
         struct zskiplistNode *header, *tail;//头结点、尾结点
         unsigned long length;//长度
-        int level;//级别
+        int level;//级别，也是高度
     } zskiplist;
 
     typedef struct zset {
@@ -46,9 +46,7 @@
 ![skiplist初始结构](../images/skiplist.png)
 插入操作：
 
-     /* Insert a new node in the skiplist. Assumes the element does not already
-     * exist (up to the caller to enforce that). The skiplist takes ownership
-     * of the passed SDS string 'ele'. */
+    // 插入一个不存在的元素
     zskiplistNode *zslInsert(zskiplist *zsl, double score, sds ele) {
         zskiplistNode *update[ZSKIPLIST_MAXLEVEL], *x;
         unsigned int rank[ZSKIPLIST_MAXLEVEL];
@@ -56,19 +54,29 @@
     
         serverAssert(!isnan(score));
         x = zsl->header;
-        for (i = zsl->level-1; i >= 0; i--) {
+        for (i = zsl->level-1; i >= 0; i--) { // 从上往下遍历
             /* store rank that is crossed to reach the insert position */
             rank[i] = i == (zsl->level-1) ? 0 : rank[i+1];
+            // 判断当前level条件是否成立
             while (x->level[i].forward &&
                     (x->level[i].forward->score < score ||
-                        (x->level[i].forward->score == score &&
+                        (x->level[i].forward->score == score && // 判断x的forward节点
                         sdscmp(x->level[i].forward->ele,ele) < 0)))
             {
-                rank[i] += x->level[i].span;
-                x = x->level[i].forward;
+                rank[i] += x->level[i].span;//村粗跨度
+                x = x->level[i].forward;//继续移动到当前level的下一个节点
             }
-            update[i] = x;
+            update[i] = x; // 将x节点缓存 x是这个:x->level[i].forward->score >= score
         }
+        假设一个跳表，插入元素为8
+
+        1               9
+        1       6       9       11
+        1   4   6   7   9   10  11  12
+
+        插入元素8,那么update数组存储的节点将是:1 6 7
+
+
         /* we assume the element is not already inside, since we allow duplicated
          * scores, reinserting the same element should never happen since the
          * caller of zslInsert() should test in the hash table if the element is
@@ -83,7 +91,9 @@
             zsl->level = level;
         }
         x = zslCreateNode(level,score,ele);
+        // 从下往上进行遍历，初始化x节点的level数组
         for (i = 0; i < level; i++) {
+            类似单链表插入操作
             x->level[i].forward = update[i]->level[i].forward;
             update[i]->level[i].forward = x;
     
@@ -106,4 +116,8 @@
         return x;
     }
     
-    
+
+
+#### 参考
+
+[跳表原理](https://juejin.cn/post/6893072817206591496)

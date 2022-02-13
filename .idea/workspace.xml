@@ -25,13 +25,21 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a3bb1a4a-c8b0-4dd8-bc61-9fb70c602c10" name="Default Changelist" comment="proxy">
+    <list default="true" id="a3bb1a4a-c8b0-4dd8-bc61-9fb70c602c10" name="Default Changelist" comment="add">
+      <change afterPath="$PROJECT_DIR$/experiments/Failover.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/img.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/img_1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/img_2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/testCode/failover/Main.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/testCode/failover/VerifyRedisFailOver.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/testCode/failover/config/docker-compose-redis.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/testCode/failover/config/docker-compose-sentinel.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/testCode/failover/config/redis.conf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/testCode/failover/config/run.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/testCode/failover/config/sentinel.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/adlist.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/adlist.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ae.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/ae.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/evict.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/evict.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/t_zset.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/t_zset.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trick/opt.md" beforeDir="false" afterPath="$PROJECT_DIR$/trick/opt.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/t_zset.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/t_zset.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,9 +66,30 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../tinyCompiler/tiny-compiler" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/testCode/failover" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\study\redis\Redis-6.0-annotation\testCode\failover" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\study\redis\Redis-6.0-annotation\experiments" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
@@ -111,7 +140,14 @@
       <workItem from="1642245835070" duration="2035000" />
       <workItem from="1642400999099" duration="1182000" />
       <workItem from="1642429565565" duration="1481000" />
-      <workItem from="1642675416733" duration="7959000" />
+      <workItem from="1642675416733" duration="9275000" />
+      <workItem from="1643002537734" duration="14651000" />
+      <workItem from="1643046346073" duration="896000" />
+      <workItem from="1643207858882" duration="17388000" />
+      <workItem from="1643422244459" duration="663000" />
+      <workItem from="1643640510000" duration="1191000" />
+      <workItem from="1643809894748" duration="1839000" />
+      <workItem from="1644493688706" duration="15306000" />
     </task>
     <task id="LOCAL-00001" summary="polish some annotations">
       <created>1595858455792</created>
@@ -197,7 +233,42 @@
       <option name="project" value="LOCAL" />
       <updated>1637387168572</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="add">
+      <created>1642839470030</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1642839470030</updated>
+    </task>
+    <task id="LOCAL-00014" summary="add multi">
+      <created>1643023913968</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1643023913968</updated>
+    </task>
+    <task id="LOCAL-00015" summary="add">
+      <created>1643033725581</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1643033725581</updated>
+    </task>
+    <task id="LOCAL-00016" summary="add">
+      <created>1643209981294</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1643209981294</updated>
+    </task>
+    <task id="LOCAL-00017" summary="add">
+      <created>1643273927042</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1643273927042</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -236,8 +307,9 @@
     <MESSAGE value="add function pointer" />
     <MESSAGE value="hi redis" />
     <MESSAGE value="polish rax.md" />
-    <MESSAGE value="add" />
     <MESSAGE value="proxy" />
-    <option name="LAST_COMMIT_MESSAGE" value="proxy" />
+    <MESSAGE value="add multi" />
+    <MESSAGE value="add" />
+    <option name="LAST_COMMIT_MESSAGE" value="add" />
   </component>
 </project>

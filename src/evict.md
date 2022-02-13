@@ -9,12 +9,16 @@
 #### 6种淘汰策略：
 
         1，noeviction：不执行任何淘汰策略，当达到内存限制的时候客户端执行命令会报错。
+        TRU
         2，allkeys-lru：从所有数据范围内查找到最近最少使用的数据进行淘汰，直到有足够的内存来存放新数据。
         3，volatile-lru：使用近似的LRU淘汰数据，仅设置过期的键。
+        RANDOM
         4，allkeys-random：从所有数据范围内随机选择key进行删除。
         5，volatile-random：从设置了过期时间的数据范围内随机选择key进行删除。
+        TTL
         6，volatile-ttl：删除最接近到期​​时间（较小的TTL）的键。,仅设置过期的键。ttl代表key的当前存活时间。将快要
         死的key直接删除。
+        LFU
         7, volatile-lfu	在设置了过期时间的键中，使用近似的LFU算法淘汰使用频率比较低的键。
         8，allkeys-lfu	使用近似的LFU算法淘汰整个数据库的键。
         
@@ -86,8 +90,6 @@
             //数据库的id
             int dbid;                   /* Key DB number. */
         };
-        
-
 
 #### LRU算法的具体实现:
     
@@ -116,11 +118,18 @@
     
     最初的具体实现，随机选择3个key,把idle time最大的key删除.这种实现lru的方法简单粗暴，但十分有效。缺点是每次随机选择时
     没有利用历史信息，需要在当前轮移除key时，利用好上一轮N个key的idle time信息。
+
+###### 驱逐池进化技术
+
     改进策略，采用缓冲池技术(pooling):
     当每一轮移除Key时，拿到了这个N个Key的idle time，如果它的idle time比 pool 里面的 Key的idle time还要大，
     就把它添加到pool里面去。这样一来，每次移除的Key并不仅仅是随机选择的N个Key里面最大的，
     而且还是pool里面idle time最大的，并且：pool 里面的Key是经过多轮比较筛选的，
     它的idle time 在概率上比随机获取的Key的idle time要大，可以这么理解：pool 里面的Key 保留了"历史经验信息"。 
+    
+    驱逐池进化技术有点类似JVM 分代收集垃圾算法，只不过分代收集是将没有过期的对象一步一步进化到老年代和永久代。
+    而驱逐池技术是每次随机选择N个key，把他们放入驱逐池中，并比较每个key的idle，将前k个较大的key删除。驱逐池中未删除
+    的key在里面保留着等待下次进化比较。
 
 #### LFU算法的具体实现:
     
