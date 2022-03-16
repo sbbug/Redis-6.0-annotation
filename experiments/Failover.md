@@ -94,6 +94,7 @@
 
 ## 参考
 [redis-io](https://redis.io/topics/cluster-tutorial)  
-[master slave replication of redis using docker](https://developpaper.com/master-slave-replication-of-redis-using-docker/)  
+[master slave replication of redis using docker](https://developpaper.com/master-slave-replication-of-redis-using-docker/)   
+[Google Borg](https://storage.googleapis.com/pub-tools-public-publication-data/pdf/43438.pdf)
 
 

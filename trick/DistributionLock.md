@@ -1,7 +1,9 @@
 
 ## 一般的分布式锁
-    
-#### 基于setnx的命令
+
+### redis的分布式锁
+
+#### 基于setnx的命令设置分布式锁
     setnx key value 
     expire key seconds
     这两个命令非原子性，因此不安全的。如果设置setnx后，后端崩溃，那么将出现死锁问题。
@@ -20,8 +22,8 @@
             return result.equals(1L);
         }
     Lua脚本执行属于原子性操作，可有效避免死锁问题。
-    
-#### 基于set key value EX/PX NX/XX 的命令
+
+#### 基于set key value EX/PX NX/XX 的命令设置分布式锁
     value可以标记操作者的唯一性
     EX seconds设置键的过期时间为秒
     PX millisecounds 设置键的过期时间为毫秒
@@ -35,7 +37,11 @@
             return "OK".equals(jedis.set(key, UniqueId, "NX", "EX", seconds));
         }
 
-    
+
+
+#### 分布式锁的释放
+    对于分布式锁的释放问题，如果简单的del删除操作，有可能会误删其它client设置的锁，考虑一种场景：A请求设置锁成功，并执行释放锁的操作，结果由于网络阻塞等原因，锁已经过期了，并且被其它请求拿到锁，网络阻塞恢复后，请求到达，又删除了别人加的锁，乌龙了！！  
+    因此释放锁时做一层判断，只有持有者才可以释放锁，可以把持有者ID存储在value中。为了保证操作的原子性，使用LUA脚本实现。
     使用Lua脚本释放锁:
         if redis.call("get",KEYS[1]) == ARGV[1] then
             return redis.call("del",KEYS[1])
@@ -44,13 +50,15 @@
         end
     使用这种方式释放锁可以避免删除别的客户端获取成功的锁
     
+    关于LUA脚本如何保证操作原子性的，参考这里[]()
+
 #### 单点问题
-    
+
     使用Redis服务器实现分布式锁，存在单点挂掉的问题。
     可以增加一个slave节点来实现。但是Redis中master与slave之间的同步通常是异步，
     并没有绝对意义上的同步。任何一个分布式系统，主从节点之间数据同步都会有延迟，这个状态
     叫soft state
-    
+
 #### RedLock算法
 
     假设集群中存在五个master节点。
@@ -67,11 +75,11 @@
         客户端应该在所有的Redis实例上进行解锁（即便某些Redis实例根本就没有加锁成功）。
 
 ###### RedLock算法可能存在的一些问题：
-      
+
       1、假设三个节点node1,node2,node3,同时过来两个请求r1,r2,如果r1此时获取node1、node2节点的锁，r2获取node3节点的锁。
          那么此时r1获取锁成功，r2获取锁失败。正常工作。如果此时来了三个请求r1,r2,r3,他们分别获取了node1,node2,node3节点的锁，
          然后出现死锁问题，造成互相等待。这个问题也好解决，每个锁有一个过期时间。锁过期之后，再重新获取锁。
-         
+
 #### 分布式锁下面如何增大请求的并发性
 
       1、可以从加锁粒度出发，细化加锁粒度。比如一个商品数量是100件，可以将100分成两个区间加锁1~50 51~100,这样可以同时支持
@@ -92,3 +100,126 @@
       2、...          
   
     
+## 其它工具实现分布式锁
+
+### MySQL数据库实现分布式锁
+
+   可以使用MySQL的字段的唯一性约束功能实现分布式锁。也就是说一张表中某个字段不可以出现重复值。
+
+   创建数据表  
+
+           CREATE TABLE `distributed_lock` (
+           `id` bigint(20) NOT NULL AUTO_INCREMENT,
+           `unique_mutex` varchar(255) NOT NULL COMMENT '业务防重id',
+           `holder_id` varchar(255) NOT NULL COMMENT '锁持有者id',
+           `create_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+           PRIMARY KEY (`id`),
+           UNIQUE KEY `mutex_index` (`unique_mutex`)
+           ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+   执行获取锁的操作
+    
+        获取锁:
+        insert into distributed_lock(unique_mutex, holder_id) values ('unique_mutex', 'holder_id');
+        //如果插入成功，则获取该锁
+   执行释放锁操作
+
+        释放锁:
+        delete from methodLock where unique_mutex='unique_mutex' and holder_id='holder_id';
+        //释放该锁
+   
+   考虑几个问题
+
+   1、分布式锁创建后，如何保证锁的可重入
+     使用hold_id判断
+   2、锁创建后，如果释放锁操作失败，该怎么办
+     客户端可以使用重试方法
+     其它客户端端在加锁之前，判断记录是否存在，如果存在，计算锁的创建时间和当前时间时差，如果大于某个阈值，直接过期。
+
+### zookeeper实现分布式锁
+
+    zookeepr中数据存储是一个树结构，节点为ZNode节点，具有持久节点、持久顺序节点、临时节点、临时顺序节点。
+
+    使用临时顺序节点实现分布式锁的创建。
+
+#### 完全分布式锁
+
+    同一时间，无论读请求还是写请求只能有一个请求拿到锁。
+    1、调用create()方法在parentLock路径下创建一个临时顺序节点，并被分配序号
+    2、调用getChildren()方法获取父节点下的所有子节点，并对节点按照序号排序
+    3、如果创建的临时节点序号等于子节点集合的最小序号，那么获取锁成功
+    4、如果不是最小节点，客户端会调用exists()方法为前一个小节点注册一个watch监听器，如果返回为null，说明前一个节点已经
+       不存在，则重新进入第二步去获取锁。否则进入等待状态，直到上一个节点删除，再重新进入第二步。
+
+    代码实现：
+
+	public void lock(){
+		
+		List<String> allCompetitorList = null;
+		try {
+		    createComPrtitorNode(); // 请求到达，创建临时顺序节点
+			allCompetitorList = pandaZk.getChildren(lockPath, false); // 获取所有子节点
+		} catch (KeeperException e) {
+			throw new PandaLockException("zookeeper connect error");
+		} catch (InterruptedException e) {
+			throw new PandaLockException("the lock has  been Interrupted");
+		}
+		    Collections.sort(allCompetitorList); // 节点排序 
+		int index = allCompetitorList.indexOf(thisCompetitorPath
+				.substring((lockPath + SEPARATOR).length()));
+		if (index == -1) {
+			throw new PandaLockException("competitorPath not exit after create");
+		} else if (index == 0) {// 如果发现自己就是最小节点,那么说明本人获得了锁
+			return;
+		} else {// 说明自己不是最小节点
+            // 获取我前面的最小节点
+			waitCompetitorPath = lockPath+SEPARATOR + allCompetitorList.get(index - 1);
+             // 在waitPath上注册监听器, 当waitPath被删除时, zookeeper会回调监听器的process方法
+            Stat waitNodeStat;
+			try {
+                // 对前面的最小节点注册一个监听器
+				waitNodeStat = pandaZk.exists(waitCompetitorPath, new Watcher() {
+					@Override
+					public void process(WatchedEvent event) {
+						if (event.getType().equals(EventType.NodeDeleted)&&event.getPath().equals(waitCompetitorPath)) {
+							getTheLocklatch.countDown(); // 放出请求
+						}
+					}
+				});
+				 if (waitNodeStat==null) {//如果运行到此处发现前面一个节点已经不存在了。说明前面的进程已经释放了锁
+		            	return;
+					}else {
+						getTheLocklatch.await(); // 阻塞等待 countdown()被执行
+						return;
+					}
+			} catch (KeeperException e) {
+				throw new PandaLockException("zookeeper connect error");
+			} catch (InterruptedException e) {
+				throw new PandaLockException("the lock has  been Interrupted");
+			}
+		}
+	}
+    
+    考虑几个问题
+    如果两个客户端同时获取getchild()方法，会不会出现不一致的问题，比如A请求拿到五个节点，B请求也拿到五个节点，然后排序计算，发现他们
+    的序号，嗯，应该没问题，因为生成的节点序号一定不唯一。
+   
+    那么zookeeper如何保证生成的临时节点序号是有序唯一的呢？
+
+#### 实现读分布式锁
+
+    实现读分布式锁和完全分布式锁一样，只有一些轻微改动。
+    1、客户端调用create方法创建一个临时顺序节点，并设置字段"read_"标识
+    2、然后调用getChildren()方法，获取下面所有节点，并排序
+    3、判断比创建节点小的序号节点集合是否有write字段，如果无，则获取读锁成功。
+    4、如果存在write节点，则对前面靠当前节点最的write节点设置watch监听器，即调用exists()
+    方法，如果方法返回为null,则直接进入第二步再次判断。否则，进入等待，监听器执行回调方法，通知阻塞的请求，
+    然后再进入第二步。
+
+#### 实现写分布式锁
+
+    写分布式锁实现和完全分布式锁实现基本一样。
+
+ 
+## 参考
+
+[zookeeper官方介绍分布式锁]()

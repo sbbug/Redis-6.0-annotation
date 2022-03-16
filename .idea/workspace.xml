@@ -25,21 +25,10 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a3bb1a4a-c8b0-4dd8-bc61-9fb70c602c10" name="Default Changelist" comment="add">
-      <change afterPath="$PROJECT_DIR$/experiments/Failover.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images/img.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images/img_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images/img_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testCode/failover/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testCode/failover/VerifyRedisFailOver.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testCode/failover/config/docker-compose-redis.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testCode/failover/config/docker-compose-sentinel.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testCode/failover/config/redis.conf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testCode/failover/config/run.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testCode/failover/config/sentinel.conf" afterDir="false" />
+    <list default="true" id="a3bb1a4a-c8b0-4dd8-bc61-9fb70c602c10" name="Default Changelist" comment="add failover">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/evict.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/evict.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/t_zset.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/t_zset.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/Failover.md" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/Failover.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trick/DistributionLock.md" beforeDir="false" afterPath="$PROJECT_DIR$/trick/DistributionLock.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +136,9 @@
       <workItem from="1643422244459" duration="663000" />
       <workItem from="1643640510000" duration="1191000" />
       <workItem from="1643809894748" duration="1839000" />
-      <workItem from="1644493688706" duration="15306000" />
+      <workItem from="1644493688706" duration="17184000" />
+      <workItem from="1646632334990" duration="2288000" />
+      <workItem from="1647402527717" duration="3756000" />
     </task>
     <task id="LOCAL-00001" summary="polish some annotations">
       <created>1595858455792</created>
@@ -268,7 +259,14 @@
       <option name="project" value="LOCAL" />
       <updated>1643273927042</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="add failover">
+      <created>1644766373816</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1644766373816</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -310,6 +308,7 @@
     <MESSAGE value="proxy" />
     <MESSAGE value="add multi" />
     <MESSAGE value="add" />
-    <option name="LAST_COMMIT_MESSAGE" value="add" />
+    <MESSAGE value="add failover" />
+    <option name="LAST_COMMIT_MESSAGE" value="add failover" />
   </component>
 </project>
