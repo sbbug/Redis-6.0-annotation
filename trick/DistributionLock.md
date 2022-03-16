@@ -1,7 +1,7 @@
 
 ## 一般的分布式锁
     
-#### 基于setnx的命令
+#### 基于setnx的命令设置分布式锁
     setnx key value 
     expire key seconds
     这两个命令非原子性，因此不安全的。如果设置setnx后，后端崩溃，那么将出现死锁问题。
@@ -21,7 +21,7 @@
         }
     Lua脚本执行属于原子性操作，可有效避免死锁问题。
     
-#### 基于set key value EX/PX NX/XX 的命令
+#### 基于set key value EX/PX NX/XX 的命令设置分布式锁
     value可以标记操作者的唯一性
     EX seconds设置键的过期时间为秒
     PX millisecounds 设置键的过期时间为毫秒
@@ -34,8 +34,12 @@
         public boolean tryLock_with_set(String key, String UniqueId, int seconds) {
             return "OK".equals(jedis.set(key, UniqueId, "NX", "EX", seconds));
         }
-
-    
+        
+        
+        
+#### 分布式锁的释放
+    对于分布式锁的释放问题，如果简单的del删除操作，有可能会误删其它client设置的锁，考虑一种场景：A请求设置锁成功，并执行释放锁的操作，结果由于网络阻塞等原因，锁已经过期了，并且被其它请求拿到锁，网络阻塞恢复后，请求到达，又删除了别人加的锁，乌龙了！！  
+    因此释放锁时做一层判断，只有持有者才可以释放锁，可以把持有者ID存储在value中。为了保证操作的原子性，使用LUA脚本实现。
     使用Lua脚本释放锁:
         if redis.call("get",KEYS[1]) == ARGV[1] then
             return redis.call("del",KEYS[1])
@@ -43,6 +47,8 @@
             return 0
         end
     使用这种方式释放锁可以避免删除别的客户端获取成功的锁
+    
+    关于LUA脚本如何保证操作原子性的，参考这里[]()
     
 #### 单点问题
     
