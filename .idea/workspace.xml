@@ -25,9 +25,8 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a3bb1a4a-c8b0-4dd8-bc61-9fb70c602c10" name="Default Changelist" comment="add failover">
+    <list default="true" id="a3bb1a4a-c8b0-4dd8-bc61-9fb70c602c10" name="Default Changelist" comment="add">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/Failover.md" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/Failover.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/trick/DistributionLock.md" beforeDir="false" afterPath="$PROJECT_DIR$/trick/DistributionLock.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -66,19 +65,6 @@
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\study\redis\Redis-6.0-annotation\experiments" />
     </key>
-  </component>
-  <component name="RunManager">
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
@@ -138,7 +124,8 @@
       <workItem from="1643809894748" duration="1839000" />
       <workItem from="1644493688706" duration="17184000" />
       <workItem from="1646632334990" duration="2288000" />
-      <workItem from="1647402527717" duration="3756000" />
+      <workItem from="1647402527717" duration="8375000" />
+      <workItem from="1648474117320" duration="795000" />
     </task>
     <task id="LOCAL-00001" summary="polish some annotations">
       <created>1595858455792</created>
@@ -266,7 +253,14 @@
       <option name="project" value="LOCAL" />
       <updated>1644766373816</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="add">
+      <created>1647406620480</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1647406620480</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -307,8 +301,8 @@
     <MESSAGE value="polish rax.md" />
     <MESSAGE value="proxy" />
     <MESSAGE value="add multi" />
-    <MESSAGE value="add" />
     <MESSAGE value="add failover" />
-    <option name="LAST_COMMIT_MESSAGE" value="add failover" />
+    <MESSAGE value="add" />
+    <option name="LAST_COMMIT_MESSAGE" value="add" />
   </component>
 </project>
