@@ -1,34 +1,34 @@
  
- #端口模式
+ ## 端口模式
  
  port 26379
  
- #添加守护进程模式
+ ## 添加守护进程模式
  
  daemonize yes
 
- #添加指明日志文件名
+ ## 添加指明日志文件名
 
  logfile "/usr/local/redis/6379/sentinel26379.log"
 
- #修改工作目录
+ ## 修改工作目录
  
  dir "/usr/local/redis/6379"
 
- #修改启动端口
+ ## 修改启动端口
  
  port 26379
 
- #添加关闭保护模式
+ ## 添加关闭保护模式
  
  protected-mode no
 
- #修改sentinel monitor
+ ## 修改sentinel monitor
  
  sentinel monitor macrog-master 192.168.24.131 6379 1
 
- #将配置文件中mymaster全部替换macrog-master
- #在末行模式下 输入 :%s/mymaster/macrog-master/g
+ ## 将配置文件中mymaster全部替换macrog-master
+ ## 在末行模式下 输入 :%s/mymaster/macrog-master/g
 
  依次修改26380,26381配置
 
